@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Purchase Order Preview</h3>
+
+<div class="card p-3 mb-3">
+  <div><strong>PO#</strong> {{ r[0] }}</div>
+  <div><strong>Date</strong> {{ r[1] }}</div>
+  <div><strong>Supplier</strong> {{ r[2] }}</div>
+  <div><strong>Item</strong> {{ r[4] }}</div>
+  <div><strong>Qty</strong> {{ r[5] }}</div>
+  <div><strong>Rate</strong> {{ r[6] }}</div>
+  <div><strong>Amount</strong> {{ r[7] }}</div>
+  <div><strong>Status</strong> {{ r[8] or 'OPEN' }}</div>
+</div>
+
+{% if r[8] in [None, '', 'OPEN'] %}
+<form method="post" action="/po_preview/{{ r[0] }}/accept?token={{ request.args.get('token') }}">
+  <button class="btn btn-success">Accept</button>
+</form>
+<form method="post" action="/po_preview/{{ r[0] }}/decline?token={{ request.args.get('token') }}" class="mt-2">
+  <button class="btn btn-danger">Decline</button>
+</form>
+{% else %}
+<div class="alert alert-info">This purchase order has been {{ r[8] }}.</div>
+{% endif %}
+
+{% endblock %}

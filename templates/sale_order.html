@@ -64,6 +64,16 @@ placeholder="Rate" required>
 
 <h4>Saved Sale Orders</h4>
 
+<div class="mb-2" style="max-width:240px">
+  <select id="saleStatusFilter" class="form-select">
+    <option value="ALL">All</option>
+    <option value="OPEN">Open</option>
+    <option value="ACCEPTED">Accepted</option>
+    <option value="DECLINED">Declined</option>
+    <option value="LOCKED">Locked</option>
+  </select>
+</div>
+
 <table class="table table-bordered">
 
 <tr>
@@ -78,8 +88,9 @@ placeholder="Rate" required>
 <th>Action</th>
 </tr>
 
+<tbody id="saleTableBody">
 {% for r in rows %}
-<tr>
+<tr data-status="{{ r[7] or 'OPEN' }}">
 
 <td>
 {% if r[7] == "LOCKED" %}
@@ -119,6 +130,7 @@ placeholder="Rate" required>
 
 </tr>
 {% endfor %}
+</tbody>
 
 </table>
 
@@ -164,6 +176,17 @@ document.getElementById("custForm").style.display="block";
 function openItem(){
 document.getElementById("itemForm").style.display="block";
 }
+</script>
+<script>
+document.getElementById("saleStatusFilter").addEventListener("change", function(){
+  const val = this.value.toUpperCase();
+  document.querySelectorAll("#saleTableBody tr").forEach(function(tr){
+    const st = (tr.dataset.status || "OPEN").toUpperCase();
+    const isOpen = st !== "LOCKED" && st !== "ACCEPTED" && st !== "DECLINED";
+    const match = val === "ALL" || st === val || (val === "OPEN" && isOpen);
+    tr.style.display = match ? "" : "none";
+  });
+});
 </script>
 
 {% endblock %}

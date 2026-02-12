@@ -1,4 +1,7 @@
-from openai import OpenAI
+try:
+    from openai import OpenAI
+except Exception:
+    OpenAI = None
 import sqlite3
 import os
 import pandas as pd
@@ -6,7 +9,7 @@ import typing
 
 client = None
 api_key = os.environ.get("OPENAI_API_KEY")
-if api_key:
+if OpenAI and api_key:
     try:
         client = OpenAI(api_key=api_key)
     except Exception:
@@ -55,24 +58,3 @@ def explain_result(df: pd.DataFrame) -> str:
     head = df.head(5)
     preview = head.to_string(index=False)
     return f"Rows: {rows}\nColumns: {', '.join(cols)}\nPreview:\n{preview}"
-
-def run_sql(sql):
-    s = sql.strip().lower()
-    if not s.startswith("select"):
-        return pd.DataFrame([{"error": "Only SELECT queries are allowed"}])
-    conn = get_db()
-    try:
-        df = pd.read_sql(sql + " LIMIT 100", conn)
-    finally:
-        conn.close()
-    return df
-
-def explain_result(df):
-    if "error" in df.columns:
-        return df.iloc[0]["error"]
-    text = df.to_string(index=False)
-    prompt = f"Explain this data in simple business language:\n\n{text}"
-    if not client:
-        return text
-    response = client.chat.completions.create(model="gpt-4o-mini", messages=[{"role":"user","content":prompt}])
-    return response.choices[0].message.content

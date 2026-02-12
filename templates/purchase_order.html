@@ -73,6 +73,16 @@ placeholder="Rate" required>
 
 <h4>Saved Purchase Orders</h4>
 
+<div class="mb-2" style="max-width:240px">
+  <select id="purchaseStatusFilter" class="form-select">
+    <option value="ALL">All</option>
+    <option value="OPEN">Open</option>
+    <option value="ACCEPTED">Accepted</option>
+    <option value="DECLINED">Declined</option>
+    <option value="LOCKED">Locked</option>
+  </select>
+</div>
+
 <table class="table table-bordered">
 
 <tr>
@@ -87,10 +97,11 @@ placeholder="Rate" required>
 <th>Action</th>
 </tr>
 
+<tbody id="purchaseTableBody">
 {% for r in rows %}
-<tr>
+<tr data-status="{{ r[7] or 'OPEN' }}">
 <td>
-{% if r[6] == "LOCKED" %}
+{% if r[7] == "LOCKED" %}
 🔒 Locked
 {% else %}
 🟢 Open
@@ -104,9 +115,16 @@ placeholder="Rate" required>
 <td>{{r[5]}}</td>
 <td>{{r[6]}}</td>
 <td>
-{% if r[6] != "LOCKED" and session.role in ["admin","manager"] %}
+{% if r[7] != "LOCKED" and session.role in ["admin","manager"] %}
 <a href="/purchase_edit/{{r[0]}}" class="btn btn-primary btn-sm">Edit</a>
 <a href="/purchase_delete/{{r[0]}}" class="btn btn-danger btn-sm">Delete</a>
+{% set preview_url = url_for('po_preview', po_id=r[0], token=po_token(r[0]), _external=True) %}
+{% set msg = 'Purchase Order #' ~ r[0] ~ ' for ' ~ r[2] ~ ' (' ~ r[3] ~ ') Qty ' ~ r[4] ~ ' Rate ' ~ r[5] ~ ' Amount ' ~ r[6] ~ '. Review and accept: ' ~ preview_url %}
+{% if r[8] %}
+<a class="btn btn-success btn-sm" target="_blank" href="https://wa.me/{{r[8]}}?text={{msg|urlencode}}">WhatsApp</a>
+{% else %}
+<a class="btn btn-success btn-sm" target="_blank" href="https://wa.me/?text={{msg|urlencode}}">WhatsApp</a>
+{% endif %}
 {% elif r[6] == "LOCKED" %}
 <span class="text-muted">Locked</span>
 {% else %}
@@ -115,6 +133,7 @@ placeholder="Rate" required>
 </td>
 </tr>
 {% endfor %}
+</tbody>
 
 </table>
 
@@ -184,6 +203,17 @@ function openItem(){
 document.getElementById("itemForm").style.display="block";
 }
 
+</script>
+<script>
+document.getElementById("purchaseStatusFilter").addEventListener("change", function(){
+  const val = this.value.toUpperCase();
+  document.querySelectorAll("#purchaseTableBody tr").forEach(function(tr){
+    const st = (tr.dataset.status || "OPEN").toUpperCase();
+    const isOpen = st !== "LOCKED" && st !== "ACCEPTED" && st !== "DECLINED";
+    const match = val === "ALL" || st === val || (val === "OPEN" && isOpen);
+    tr.style.display = match ? "" : "none";
+  });
+});
 </script>
 
 {% endblock %}

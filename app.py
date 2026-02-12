@@ -52,6 +52,13 @@ def so_token(so_id:int)->str:
 
 app.jinja_env.globals.update(so_token=so_token)
 
+def po_token(po_id:int)->str:
+    key = app.secret_key.encode()
+    msg = f"po:{po_id}".encode()
+    return hmac.new(key, msg, hashlib.sha256).hexdigest()
+
+app.jinja_env.globals.update(po_token=po_token)
+
 # ---------------- LOGIN ----------------
 @app.route("/", methods=["GET","POST"])
 def login():
@@ -321,7 +328,7 @@ def purchase():
     items=con.execute("SELECT * FROM item_mast ORDER BY item_name").fetchall()
 
     rows=con.execute("""
-        SELECT po_id,po_date,acc_name,item_name,qty,rate,amount
+        SELECT po_id,po_date,acc_name,item_name,qty,rate,amount,status,acc_mast.mobile
         FROM purchase_orders
         JOIN acc_mast ON purchase_orders.acc_id=acc_mast.acc_id
         JOIN item_mast ON purchase_orders.item_id=item_mast.item_id
@@ -704,6 +711,56 @@ def sale_invoice(la_id):
             ORDER BY inv_id DESC
         """).fetchall()
     )
+
+#-----------------PO PREVIEW----------------------------
+@app.route("/po_preview/<int:po_id>", methods=["GET"])
+def po_preview(po_id:int):
+    token = request.args.get("token","")
+    if token != po_token(po_id):
+        abort(403)
+    con = db()
+    row = con.execute("""
+        SELECT p.po_id,p.po_date,a.acc_name,a.mobile,i.item_name,p.qty,p.rate,p.amount,p.status
+        FROM purchase_orders p
+        JOIN acc_mast a ON p.acc_id=a.acc_id
+        JOIN item_mast i ON p.item_id=i.item_id
+        WHERE p.po_id=?
+    """,(po_id,)).fetchone()
+    if not row:
+        abort(404)
+    return render_template("po_preview.html", r=row)
+
+@app.route("/po_preview/<int:po_id>/accept", methods=["POST"])
+def po_accept(po_id:int):
+    token = request.args.get("token","")
+    if token != po_token(po_id):
+        abort(403)
+    con = db()
+    con.execute("UPDATE purchase_orders SET status='ACCEPTED' WHERE po_id=?", (po_id,))
+    con.commit()
+    return render_template("po_preview.html", r=con.execute("""
+        SELECT p.po_id,p.po_date,a.acc_name,a.mobile,i.item_name,p.qty,p.rate,p.amount,p.status
+        FROM purchase_orders p
+        JOIN acc_mast a ON p.acc_id=a.acc_id
+        JOIN item_mast i ON p.item_id=i.item_id
+        WHERE p.po_id=?
+    """,(po_id,)).fetchone())
+
+@app.route("/po_preview/<int:po_id>/decline", methods=["POST"])
+def po_decline(po_id:int):
+    token = request.args.get("token","")
+    if token != po_token(po_id):
+        abort(403)
+    con = db()
+    con.execute("UPDATE purchase_orders SET status='DECLINED' WHERE po_id=?", (po_id,))
+    con.commit()
+    return render_template("po_preview.html", r=con.execute("""
+        SELECT p.po_id,p.po_date,a.acc_name,a.mobile,i.item_name,p.qty,p.rate,p.amount,p.status
+        FROM purchase_orders p
+        JOIN acc_mast a ON p.acc_id=a.acc_id
+        JOIN item_mast i ON p.item_id=i.item_id
+        WHERE p.po_id=?
+    """,(po_id,)).fetchone())
 
 #-----------------AI----------------------------
 @app.route("/ai")
