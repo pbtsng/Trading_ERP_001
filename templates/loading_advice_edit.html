@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Edit Loading Advice #{{head[0]}}</h3>
+
+<form method="post">
+
+<label>Date</label>
+<input name="la_date" class="form-control mb-2" value="{{head[1]}}">
+
+<label>Vehicle</label>
+<input name="vehicle_no" class="form-control mb-2" value="{{head[2]}}">
+
+<table class="table table-bordered">
+<tr>
+<th>Section</th>
+<th>Batch</th>
+<th>Qty</th>
+</tr>
+
+{% for r in rows %}
+<tr>
+<input type="hidden" name="id" value="{{r[0]}}">
+<td><input name="section" class="form-control" value="{{r[1]}}"></td>
+<td><input name="part" class="form-control" value="{{r[3]}}"></td>
+<td><input name="qty" class="form-control" value="{{r[2]}}"></td>
+</tr>
+{% endfor %}
+
+</table>
+
+<button class="btn btn-primary">Save</button>
+<a href="/loading_advice" class="btn btn-secondary">Cancel</a>
+
+</form>
+
+{% endblock %}

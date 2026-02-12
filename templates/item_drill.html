@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>🔍 {{item}}</h3>
+
+<h5>Sale Orders</h5>
+
+<table class="table table-bordered">
+<tr>
+<th>SO No</th>
+<th>Customer</th>
+<th>Qty</th>
+<th>Loaded</th>
+<th>Balance</th>
+</tr>
+
+{% for s in sales %}
+<tr>
+<td>{{s[0]}}</td>
+<td>{{s[1]}}</td>
+<td>{{s[2]}}</td>
+<td>{{s[3]}}</td>
+<td>{{s[2]-s[3]}}</td>
+</tr>
+{% endfor %}
+</table>
+
+<h5>Purchase Orders</h5>
+
+<table class="table table-bordered">
+<tr>
+<th>PO No</th>
+<th>Supplier</th>
+<th>Qty</th>
+<th>Loaded</th>
+<th>Balance</th>
+</tr>
+
+{% for p in purchases %}
+<tr>
+<td>{{p[0]}}</td>
+<td>{{p[1]}}</td>
+<td>{{p[2]}}</td>
+<td>{{p[3]}}</td>
+<td>{{p[2]-p[3]}}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

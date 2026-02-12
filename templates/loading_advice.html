@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-3">🚚 Create Loading Advice</h3>
+
+<a href="/export_loading_excel">
+<button class="btn btn-success mb-3">
+📊 Export Loading Advice to Excel
+</button>
+</a>
+
+<form method="post">
+
+<input type="date" name="date"
+class="form-control mb-2"
+value="{{ today }}" required>
+
+
+<input name="vehicle"
+placeholder="Vehicle Number"
+class="form-control mb-3" required>
+
+<table class="table table-bordered table-light">
+
+<thead>
+<tr class="table-secondary">
+<th>Sale Order</th>
+<th>Purchase Order</th>
+<th>Item</th>
+<th>Section</th>
+<th>Batch</th>
+<th>Loading Qty</th>
+</tr>
+</thead>
+
+<tbody id="rows">
+
+<tr>
+
+<td>
+<select name="so_id" onchange="loadSO(this)" class="form-control">
+<option value="">-- Select Sale Order --</option>
+{% for s in sales %}
+<option value="{{s[0]}}">
+SO{{s[0]}} | {{s[1]}} | {{s[2]}} | {{s[3]}} | Bal:{{s[4]}} | Rate:{{s[5]}}
+</option>
+{% endfor %}
+</select>
+</td>
+
+<td>
+<select name="po_id" onchange="loadPO(this)" class="form-control">
+<option value="">-- Select Purchase Order --</option>
+{% for p in purchases %}
+<option value="{{p[0]}}">
+PO{{p[0]}} | {{p[1]}} | {{p[2]}} | {{p[3]}} | Bal:{{p[4]}} | Rate:{{p[5]}}
+</option>
+{% endfor %}
+</select>
+</td>
+
+<td>
+<input name="item" class="form-control" readonly>
+</td>
+
+<td>
+<input name="section" class="form-control">
+</td>
+
+<td>
+<input name="batch" class="form-control">
+</td>
+
+<td>
+<input name="qty" class="form-control">
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<button type="button" onclick="addRow()" class="btn btn-secondary">
+➕ Add Row
+</button>
+
+<button class="btn btn-primary">
+💾 Save Loading Advice
+</button>
+
+</form>
+
+<hr>
+
+<div class="d-flex justify-content-between align-items-center print-hide">
+  <h3 class="m-0">📋 Saved Loading Advice</h3>
+  <div>
+    <a href="/loading_advice_print" class="btn btn-outline-primary">Print A4</a>
+    <button onclick="window.print()" class="btn btn-outline-secondary">Print Page</button>
+  </div>
+  </div>
+
+<div class="la-grid">
+
+{% for la in las %}
+
+<div class="la-card">
+
+<h6>LA# {{la[0]}}</h6>
+<div>Date: {{la[1]}}</div>
+<div>Vehicle: {{la[2]}}</div>
+
+<br>
+
+<table>
+
+<tr>
+<th>Section</th>
+<th>Qty</th>
+<th>Batch</th>
+</tr>
+
+{% for r in la_rows[la[0]] %}
+<tr align="center">
+<td>{{r[0]}}</td>
+<td>{{r[1]}}</td>
+<td>{{r[2]}}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+<br>
+
+<a href="/sale_invoice/{{ la[0] }}" class="btn btn-success w-100">🧾 Create Sale Invoice</a>
+
+{% if session.role in ["admin","manager"] %}
+<div class="mt-2 la-actions">
+  <a href="/loading_advice_edit/{{ la[0] }}" class="btn btn-primary">Edit</a>
+  <a href="/loading_advice_delete/{{ la[0] }}" class="btn btn-danger">Delete</a>
+</div>
+{% else %}
+<div class="text-muted">View Only</div>
+{% endif %}
+
+</div>
+
+{% endfor %}
+</div>
+
+<script>
+
+function addRow(){
+
+let row = `
+<tr>
+
+<td>
+<select name="so_id" onchange="loadSO(this)" class="form-control">
+<option value="">-- Select Sale Order --</option>
+{% for s in sales %}
+<option value="{{s[0]}}">
+SO{{s[0]}} | {{s[1]}} | {{s[2]}} | {{s[3]}} | Bal:{{s[4]}} | Rate:{{s[5]}}
+</option>
+{% endfor %}
+</select>
+</td>
+
+<td>
+<select name="po_id" onchange="loadPO(this)" class="form-control">
+<option value="">-- Select Purchase Order --</option>
+{% for p in purchases %}
+<option value="{{p[0]}}">
+PO{{p[0]}} | {{p[1]}} | {{p[2]}} | {{p[3]}} | Bal:{{p[4]}} | Rate:{{p[5]}}
+</option>
+{% endfor %}
+</select>
+</td>
+
+<td><input name="item" class="form-control" readonly></td>
+<td><input name="section" class="form-control"></td>
+<td><input name="batch" class="form-control"></td>
+<td><input name="qty" class="form-control"></td>
+
+</tr>
+`;
+
+document.getElementById("rows")
+.insertAdjacentHTML("beforeend",row);
+
+}
+
+function loadSO(el){
+
+let so = el.value;
+let row = el.closest("tr");
+
+fetch("/get_so/"+so)
+.then(res=>res.json())
+.then(data=>{
+row.querySelector('[name="qty"]').value = data.balance;
+});
+
+}
+
+function loadPO(el){
+
+let po = el.value;
+let row = el.closest("tr");
+
+fetch("/get_po/"+po)
+.then(res=>res.json())
+.then(data=>{
+row.querySelector('[name="item"]').value = data.item;
+});
+
+}
+
+</script>
+
+{% endblock %}

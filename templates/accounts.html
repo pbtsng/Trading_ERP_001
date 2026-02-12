@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Account Master</h3>
+
+<form method="post">
+
+<input name="name" placeholder="Account Name" required>
+
+<select name="type">
+<option>Customer</option>
+<option>Supplier</option>
+</select>
+
+<button>Add</button>
+
+</form>
+
+<hr>
+
+<table border="1">
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Type</th>
+</tr>
+
+{% for r in rows %}
+<tr>
+<td>{{r[0]}}</td>
+<td>{{r[1]}}</td>
+<td>{{r[2]}}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

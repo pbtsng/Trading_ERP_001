@@ -1,0 +1,180 @@
+<a href="/export_loading_excel">
+<button class="btn btn-success">
+📊 Export Loading Advice to Excel
+</button>
+</a>
+<hr>
+
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Create Loading Advice</h3>
+
+<form method="post">
+
+<input type="date" name="date" class="form-control mb-2" required>
+
+<input name="vehicle" placeholder="Vehicle Number"
+class="form-control mb-2" required>
+
+<table class="table">
+
+<tr>
+<th>Sale Order</th>
+<th>Purchase Order</th>
+<th>Item</th>
+<th>Section</th>
+<th>Batch</th>
+<th>Qty</th>
+</tr>
+
+<tbody id="rows">
+
+<tr>
+
+<td>
+<select name="so_id" onchange="loadSO(this)" class="form-control">
+<option value="">--Select--</option>
+{% for s in sales %}
+<option value="{{s[0]}}">{{s[0]}}</option>
+{% endfor %}
+</select>
+</td>
+
+<td>
+<select name="po_id" onchange="loadPO(this)" class="form-control">
+<option value="">--Select--</option>
+{% for p in purchases %}
+<option value="{{p[0]}}">{{p[0]}}</option>
+{% endfor %}
+</select>
+</td>
+
+<td><input name="item" class="form-control"></td>
+<td><input name="section" class="form-control"></td>
+<td><input name="batch" class="form-control"></td>
+<td><input name="qty" class="form-control"></td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<button type="button" class="btn btn-secondary" onclick="addRow()">Add Row</button>
+<button class="btn btn-success">Save Loading Advice</button>
+
+</form>
+
+<hr>
+
+<h3>Saved Loading Advice</h3>
+
+<div style="display:grid;
+grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+gap:20px;">
+
+{% for la in las %}
+
+<div style="background:#dadadb;
+color:rgb(0, 0, 0);
+padding:20px;
+border-radius:15px;
+box-shadow:0 0 10px black;">
+
+<b>Party :</b> {{la[3]}}<br>
+<b>LA No :</b> {{la[0]}}<br>
+<b>Date :</b> {{la[1]}}<br>
+<b>Vehicle :</b> {{la[2]}}<br>
+<br>
+<table border="1" width="100%" style="border-collapse:collapse;color:white">
+<tr>
+<th>Section</th>
+<th>Qty</th>
+<th>Batch</th>
+</tr>
+{% for r in la_rows[la[0]] %}
+<tr align="center">
+<td>{{r[0]}}</td>
+<td>{{r[1]}}</td>
+<td>{{r[2]}}</td>
+</tr>
+{% endfor %}
+</table>
+<br>
+<b>Total :</b> {{la[4]}} MT
+<br><br>
+<a href="/sale_invoice/{{la[0]}}">
+<button class="btn btn-primary">Create Invoice</button>
+</a>
+</div>
+{% endfor %}
+</div>
+<script>
+function addRow(){
+let row = `
+<tr>
+
+<td>
+<select name="so_id" onchange="loadSO(this)" class="form-control">
+<option value="">--Select--</option>
+{% for s in sales %}
+<option value="{{s[0]}}">
+SO{{s[0]}} | {{s[1]}} | Bal:{{s[2]}} | Rate:{{s[3]}}
+</option>
+{% endfor %}
+</select>
+</td>
+
+<td>
+<select name="po_id" onchange="loadPO(this)" class="form-control">
+<option value="">--Select--</option>
+{% for p in purchases %}
+<option value="{{p[0]}}">
+PO{{p[0]}} | {{p[1]}} | Bal:{{p[2]}} | Rate:{{p[3]}} | {{p[4]}}
+</option>
+{% endfor %}
+</select>
+</td>
+
+<td><input name="item" class="form-control"></td>
+<td><input name="section" class="form-control"></td>
+<td><input name="batch" class="form-control"></td>
+<td><input name="qty" class="form-control"></td>
+
+</tr>
+`;
+
+document.getElementById("rows").insertAdjacentHTML("beforeend",row);
+
+}
+
+function loadSO(el){
+
+let so = el.value;
+let row = el.parentElement.parentElement;
+
+fetch("/get_so/"+so)
+.then(res=>res.json())
+.then(data=>{
+row.querySelector('[name="qty"]').value = data.balance;
+});
+
+}
+
+function loadPO(el){
+
+let po = el.value;
+let row = el.parentElement.parentElement;
+
+fetch("/get_po/"+po)
+.then(res=>res.json())
+.then(data=>{
+row.querySelector('[name="item"]').value = data.item;
+});
+
+}
+
+</script>
+
+{% endblock %}

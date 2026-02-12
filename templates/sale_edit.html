@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Edit Sale Order #{{r[0]}}</h3>
+
+<form method="post" class="card p-3 col-6">
+
+<label>Qty</label>
+<input name="qty" class="form-control mb-2" value="{{r[4]}}">
+
+<label>Rate</label>
+<input name="rate" class="form-control mb-2" value="{{r[5]}}">
+
+<button class="btn btn-primary">Save</button>
+<a href="/sale" class="btn btn-secondary">Cancel</a>
+
+</form>
+
+{% endblock %}

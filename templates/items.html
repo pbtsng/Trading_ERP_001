@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Item Master</h3>
+
+<form method="post">
+
+<input name="name" placeholder="Item Name" required>
+<button>Add</button>
+
+</form>
+
+<hr>
+
+<table border="1">
+<tr>
+<th>ID</th>
+<th>Item Name</th>
+</tr>
+
+{% for r in rows %}
+<tr>
+<td>{{r[0]}}</td>
+<td>{{r[1]}}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

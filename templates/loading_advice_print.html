@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="print-hide d-flex justify-content-between align-items-center">
+  <h3 class="m-0">Loading Advice – Print</h3>
+  <button onclick="window.print()" class="btn btn-outline-secondary">Print</button>
+</div>
+
+<div class="la-grid">
+{% for la in las %}
+  <div class="la-card">
+    <h6>LA# {{la[0]}}</h6>
+    <div>Date: {{la[1]}}</div>
+    <div>Vehicle: {{la[2]}}</div>
+    <table>
+      <tr>
+        <th>Section</th>
+        <th>Qty</th>
+        <th>Batch</th>
+      </tr>
+      {% for r in la_rows[la[0]] %}
+      <tr>
+        <td>{{r[0]}}</td>
+        <td>{{r[1]}}</td>
+        <td>{{r[2]}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endfor %}
+</div>
+
+{% endblock %}

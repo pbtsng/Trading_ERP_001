@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Purchase Order</h3>
+
+<form method="post">
+
+<input type="date" name="date" class="form-control mb-2" required>
+
+<!-- SUPPLIER -->
+<label>Supplier</label>
+<div class="input-group mb-2">
+
+<select name="acc_id" class="form-control" required>
+<option value="">-- Select Supplier --</option>
+{% for s in suppliers %}
+<option value="{{s[0]}}">{{s[1]}}</option>
+{% endfor %}
+</select>
+
+<button type="button" class="btn btn-secondary"
+onclick="openSupplier()">➕</button>
+
+</div>
+
+<!-- ITEM -->
+<label>Item</label>
+<div class="input-group mb-2">
+
+<select name="item_id" class="form-control" required>
+<option value="">-- Select Item --</option>
+{% for i in items %}
+<option value="{{i[0]}}">{{i[1]}}</option>
+{% endfor %}
+</select>
+
+<button type="button" class="btn btn-secondary"
+onclick="openItem()">➕</button>
+
+</div>
+
+<input name="qty" class="form-control mb-2" placeholder="Qty" required>
+<input name="rate" class="form-control mb-2" placeholder="Rate" required>
+
+<button class="btn btn-success">Save Purchase Order</button>
+
+</form>
+
+<hr>
+
+<table class="table">
+<tr>
+<th>Date</th>
+<th>Supplier</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Amount</th>
+</tr>
+
+{% for r in rows %}
+<tr>
+<td>{{r[1]}}</td>
+<td>{{r[2]}}</td>
+<td>{{r[3]}}</td>
+<td>{{r[4]}}</td>
+<td>{{r[5]}}</td>
+<td>{{r[6]}}</td>
+</tr>
+{% endfor %}
+</table>
+
+<!-- POPUPS -->
+
+<form method="post" action="/add_account" id="supForm" style="display:none">
+<input type="hidden" name="type" value="Supplier">
+<input name="name" placeholder="Supplier Name" required>
+<button>Add</button>
+</form>
+
+<form method="post" action="/add_item" id="itemForm" style="display:none">
+<input name="name" placeholder="Item Name" required>
+<button>Add</button>
+</form>
+
+<script>
+function openSupplier(){
+ document.getElementById("supForm").style.display="block";
+}
+function openItem(){
+ document.getElementById("itemForm").style.display="block";
+}
+</script>
+
+{% endblock %}
+<!-- SUPPLIER MODAL -->
+<div class="modal fade" id="supplierModal">
+<div class="modal-dialog">
+<div class="modal-content">
+
+<form method="post" action="/add_account">
+
+<div class="modal-header">
+<h5>Add Supplier</h5>
+</div>
+
+<div class="modal-body">
+
+<input type="hidden" name="type" value="Supplier">
+
+<input name="name" class="form-control mb-2" placeholder="Supplier Name" required>
+<input name="mobile" class="form-control mb-2" placeholder="Mobile">
+<input name="pan" class="form-control mb-2" placeholder="PAN">
+<input name="gstin" class="form-control mb-2" placeholder="GSTIN">
+<input name="address" class="form-control mb-2" placeholder="Address">
+<input name="city" class="form-control mb-2" placeholder="City">
+<input name="state" class="form-control mb-2" placeholder="State">
+
+</div>
+
+<div class="modal-footer">
+<button class="btn btn-success">Save</button>
+</div>
+
+</form>
+
+</div>
+</div>
+</div>
+

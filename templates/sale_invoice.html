@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Create Sale Invoice</h3>
+
+<form method="post">
+
+<label>Date</label>
+<input type="date" name="date" value="{{today}}" class="form-control mb-2">
+
+<label>Customer</label>
+<input name="customer" value="{{customer}}" class="form-control mb-2" readonly>
+
+<table class="table table-bordered">
+
+<tr>
+<th>Item</th>
+<th>Section</th>
+<th>Qty</th>
+<th>Final Rate</th>
+<th>Amount</th>
+</tr>
+
+<tbody id="rows">
+
+{% for r in rows %}
+<tr>
+
+<td>
+<input name="item" value="{{r[0]}}" class="form-control" readonly>
+</td>
+
+<td>
+<input name="section" value="{{r[1]}}" class="form-control" readonly>
+</td>
+
+<td>
+<input name="qty" value="{{r[2]}}" class="form-control qty" readonly>
+</td>
+
+<td>
+<input name="rate" class="form-control rate" oninput="calc(this)">
+</td>
+
+<td>
+<input name="amount" class="form-control amount" readonly>
+</td>
+
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+<h4>
+Total :
+<input id="grand_total" name="grand_total"
+class="form-control"
+style="width:200px"
+readonly>
+</h4>
+
+<br>
+
+<button class="btn btn-success">Save Invoice</button>
+
+</form>
+
+<hr>
+
+<h4>Saved Sale Invoices</h4>
+
+<div class="table-responsive">
+<table class="table table-bordered table-sm">
+  <thead>
+    <tr>
+      <th>Invoice#</th>
+      <th>Date</th>
+      <th>Customer</th>
+      <th>Total</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for inv in invoices or [] %}
+    <tr>
+      <td>{{ inv[0] }}</td>
+      <td>{{ inv[1] }}</td>
+      <td>{{ inv[2] }}</td>
+      <td>{{ '%.2f'|format(inv[3]) }}</td>
+      <td>
+        <a class="btn btn-primary btn-sm" href="/print_invoice/{{ inv[0] }}">Print</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<script>
+function calc(el){
+
+let row = el.closest("tr")
+
+let qty = parseFloat(row.querySelector(".qty").value)
+let final_rate = parseFloat(el.value)
+
+if(isNaN(final_rate)) final_rate = 0
+
+let amt = qty * final_rate
+row.querySelector(".amount").value = amt.toFixed(2)
+
+let total = 0
+document.querySelectorAll(".amount").forEach(a=>{
+    total += parseFloat(a.value || 0)
+})
+
+document.getElementById("grand_total").value = total.toFixed(2)
+}
+</script>
+
+{% endblock %}

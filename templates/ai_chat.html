@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Business Assistant</title>
+
+<style>
+body{font-family:Arial;background:#f4f6f8}
+.box{width:60%;margin:auto;background:white;padding:20px;border-radius:8px}
+input{width:80%;padding:10px}
+button{padding:10px}
+pre{background:#eee;padding:10px}
+.error{color:#b00020}
+</style>
+
+</head>
+<body>
+
+<div class="box">
+<h2>AI Trading Assistant</h2>
+
+<input id="q" placeholder="Ask your question">
+<button onclick="ask()">Ask</button>
+
+<h3>Answer</h3>
+<div id="ans"></div>
+
+<h4>Generated SQL</h4>
+<pre id="sql"></pre>
+</div>
+
+<script>
+function ask(){
+    let q = document.getElementById("q").value;
+
+    fetch("/ask_ai",{
+        method:"POST",
+        headers:{"Content-Type":"application/x-www-form-urlencoded"},
+        body:"question="+q
+    })
+    .then(r=>r.json())
+    .then(d=>{
+        if(d.error){
+            document.getElementById("ans").innerHTML = "<div class='error'>"+d.error+"</div>";
+            document.getElementById("sql").innerText = d.sql || "";
+        }else{
+            document.getElementById("ans").innerHTML = d.answer;
+            document.getElementById("sql").innerText = d.sql;
+        }
+    })
+}
+</script>
+
+</body>
+</html>

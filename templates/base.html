@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<title>Trading ERP</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="/static/css/style.css" rel="stylesheet">
+<link rel="manifest" href="/static/manifest.json">
+</head>
+<body>
+
+{% set logged_in = session.user is defined and session.user %}
+{% if logged_in %}
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">ERP</div>
+      <nav class="menu">
+        {% set path = request.path if request else '' %}
+        <a href="/dashboard" class="menu-item {% if path.startswith('/dashboard') %}active{% endif %}" title="Dashboard"><span class="icon">🏠</span><span class="label">Dashboard</span></a>
+        <div class="menu-group">
+          <button class="menu-title collapsible" data-target="group-sales">Sales</button>
+          <div class="submenu" id="group-sales">
+            <a href="/sale" class="menu-item sub {% if path.startswith('/sale') %}active{% endif %}" title="Sale Order"><span class="icon">🧾</span><span class="label">Sale Order</span></a>
+            <a href="/sale_invoice" class="menu-item sub {% if path.startswith('/sale_invoice') %}active{% endif %}" title="Sale Invoice"><span class="icon">🧮</span><span class="label">Sale Invoice</span></a>
+          </div>
+        </div>
+        <div class="menu-group">
+          <button class="menu-title collapsible" data-target="group-purchase">Purchase</button>
+          <div class="submenu" id="group-purchase">
+            <a href="/purchase" class="menu-item sub {% if path.startswith('/purchase') %}active{% endif %}" title="Purchase Order"><span class="icon">🛒</span><span class="label">Purchase Order</span></a>
+            <a href="/loading_advice" class="menu-item sub {% if path.startswith('/loading_advice') %}active{% endif %}" title="Loading Advice"><span class="icon">📦</span><span class="label">Loading Advice</span></a>
+          </div>
+        </div>
+        <div class="menu-group">
+          <button class="menu-title collapsible" data-target="group-inventory">Inventory</button>
+          <div class="submenu" id="group-inventory">
+            <a href="#" class="menu-item sub" title="Stock"><span class="icon">📊</span><span class="label">Stock</span></a>
+            <a href="#" class="menu-item sub" title="Godown"><span class="icon">🏢</span><span class="label">Godown</span></a>
+          </div>
+        </div>
+        <div class="menu-group">
+          <button class="menu-title collapsible" data-target="group-accounts">Accounts</button>
+          <div class="submenu" id="group-accounts">
+            <a href="#" class="menu-item sub" title="Ledger"><span class="icon">📒</span><span class="label">Ledger</span></a>
+            <a href="#" class="menu-item sub" title="Trial Balance"><span class="icon">⚖️</span><span class="label">Trial Balance</span></a>
+          </div>
+        </div>
+        <a href="/control_report" class="menu-item {% if path.startswith('/control_report') %}active{% endif %}" title="Reports"><span class="icon">📈</span><span class="label">Reports</span></a>
+        <a href="/ai" class="menu-item {% if path.startswith('/ai') %}active{% endif %}" title="AI Assistant"><span class="icon">🤖</span><span class="label">AI Assistant</span></a>
+        <a href="#" class="menu-item" title="Settings"><span class="icon">⚙️</span><span class="label">Settings</span></a>
+      </nav>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="top-left">
+          <button class="menu-btn" id="menuBtn">☰</button>
+          <button class="icon-btn" id="collapseBtn" title="Collapse Sidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18M3 12h18M3 20h18"/></svg>
+          </button>
+          <div class="brand">ERP</div>
+        </div>
+        <div class="top-center">
+          <div class="search-wrap">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input class="search" placeholder="Search…">
+          </div>
+        </div>
+        <div class="top-right">
+          <button class="icon-btn" id="notifBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0v5l2 2H4l2-2Z"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+          <button class="icon-btn" id="rightToggle" title="AI Pane">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18M3 12h18M3 19h18"/></svg>
+          </button>
+          <button class="icon-btn" id="bottomToggle" title="Console">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18M3 12h18M3 19h10"/></svg>
+          </button>
+          <div class="dropdown">
+            <button class="icon-btn" id="helpBtn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 1.5-1 2-2 2"/><path d="M12 17h.01"/></svg>
+            </button>
+            <div class="dropdown-menu" id="helpMenu">
+              <a href="/control_report" class="dropdown-item">Reports</a>
+              <a href="/ai" class="dropdown-item">AI Assistant</a>
+            </div>
+          </div>
+          <select id="themeSelect" class="form-select form-select-sm" style="max-width:130px">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+          <div class="user">
+            <span class="user-name">{{session.user or ''}}</span>
+            <span class="user-role">{{session.role or ''}}</span>
+          </div>
+        </div>
+      </header>
+      <section class="content">
+        <div id="tabsBar" class="tabs"></div>
+{% endif %}
+        {% block content %}{% endblock %}
+{% if logged_in %}
+      </section>
+    </main>
+  </div>
+  <div class="overlay" id="overlay"></div>
+  <aside id="rightPane" class="right-pane">
+    <div class="pane-head">AI Result</div>
+    <div id="aiAnswer"></div>
+    <pre id="aiSql"></pre>
+  </aside>
+  <div id="bottomPane" class="bottom-pane">
+    <div class="pane-head">AI Prompt</div>
+    <form id="aiForm" class="ai-form">
+      <input id="aiInput" placeholder="Ask ERP...">
+      <button class="btn btn-primary">Send</button>
+    </form>
+    <div id="aiStatus"></div>
+  </div>
+{% else %}
+{% endif %}
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

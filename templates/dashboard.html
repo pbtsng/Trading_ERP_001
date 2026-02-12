@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row g-3">
+  <div class="col-12 col-md-6 col-lg-3">
+    <div class="card p-3">
+      <div>Total Business</div>
+      <div class="fs-4">₹ {{ '%.2f'|format(kpi.total_business) }}</div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-lg-3">
+    <div class="card p-3">
+      <div>Total Profit</div>
+      <div class="fs-4">₹ {{ '%.2f'|format(kpi.total_profit) }}</div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-lg-3">
+    <div class="card p-3">
+      <div>In Pipeline</div>
+      <div class="fs-4">₹ {{ '%.2f'|format(kpi.in_pipeline) }}</div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 col-lg-3">
+    <div class="card p-3">
+      <div>Brokerage Generated</div>
+      <div class="fs-4">₹ {{ '%.2f'|format(kpi.brokerage) }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-3">
+  <div class="col-12 col-lg-6">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>Sales vs Purchase</div>
+        <select id="granularity" class="form-select form-select-sm" style="max-width:160px">
+          <option value="month" selected>Month</option>
+          <option value="day">Day</option>
+          <option value="year">Year</option>
+        </select>
+      </div>
+      <div class="chart-box"><canvas id="spChart"></canvas></div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6">
+    <div class="card p-3">
+      <div class="mb-2">Loading Advice Qty & Invoices</div>
+      <div class="chart-box"><canvas id="laChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-3">
+  <div class="col-12">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="mb-2">Standing Purchase Orders</div>
+        <select id="supplierFilter" class="form-select" style="max-width:240px">
+          <option value="All">All Suppliers</option>
+          {% for s in suppliers %}
+          <option value="{{s}}">{{s}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>PO#</th><th>Date</th><th>Supplier</th><th>Item</th><th>Qty</th><th>Supplied</th><th>Pending</th>
+            </tr>
+          </thead>
+          <tbody id="poTableBody">
+            {% for r in pending_pos %}
+            <tr data-supplier="{{r['acc_name']}}">
+              <td>{{r['po_id']}}</td>
+              <td>{{r['po_date']}}</td>
+              <td>{{r['acc_name']}}</td>
+              <td>{{r['item_name']}}</td>
+              <td>{{r['qty']}}</td>
+              <td>{{r['supplied']}}</td>
+              <td>{{r['pending']}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const saleData = {
+  labels: {{ sale_months|map(attribute=0)|list|tojson }},
+  values: {{ sale_months|map(attribute=1)|list|tojson }}
+};
+const purchaseData = {
+  labels: {{ purchase_months|map(attribute=0)|list|tojson }},
+  values: {{ purchase_months|map(attribute=1)|list|tojson }}
+};
+const loadingData = {
+  labels: {{ loading_months|map(attribute=0)|list|tojson }},
+  values: {{ loading_months|map(attribute=1)|list|tojson }}
+};
+const invoiceData = {
+  labels: {{ invoice_months|map(attribute=0)|list|tojson }},
+  values: {{ invoice_months|map(attribute=1)|list|tojson }}
+};
+const saleDay = {
+  labels: {{ sale_days|map(attribute=0)|list|tojson }},
+  values: {{ sale_days|map(attribute=1)|list|tojson }}
+};
+const saleYear = {
+  labels: {{ sale_years|map(attribute=0)|list|tojson }},
+  values: {{ sale_years|map(attribute=1)|list|tojson }}
+};
+const purchaseDay = {
+  labels: {{ purchase_days|map(attribute=0)|list|tojson }},
+  values: {{ purchase_days|map(attribute=1)|list|tojson }}
+};
+const purchaseYear = {
+  labels: {{ purchase_years|map(attribute=0)|list|tojson }},
+  values: {{ purchase_years|map(attribute=1)|list|tojson }}
+};
+const loadingDay = {
+  labels: {{ loading_days|map(attribute=0)|list|tojson }},
+  values: {{ loading_days|map(attribute=1)|list|tojson }}
+};
+const loadingYear = {
+  labels: {{ loading_years|map(attribute=0)|list|tojson }},
+  values: {{ loading_years|map(attribute=1)|list|tojson }}
+};
+const invoiceDay = {
+  labels: {{ invoice_days|map(attribute=0)|list|tojson }},
+  values: {{ invoice_days|map(attribute=1)|list|tojson }}
+};
+const invoiceYear = {
+  labels: {{ invoice_years|map(attribute=0)|list|tojson }},
+  values: {{ invoice_years|map(attribute=1)|list|tojson }}
+};
+const spCtx = document.getElementById('spChart');
+function currentAxisColors(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    axisColor: isDark ? '#f2f2f2' : '#6c6c70',
+    gridColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'
+  };
+}
+let {axisColor, gridColor} = currentAxisColors();
+const spChart = new Chart(spCtx, {
+  type: 'bar',
+  data: {
+    labels: saleData.labels,
+    datasets: [
+      { label: 'Sales', data: saleData.values, backgroundColor: '#0a84ff' },
+      { label: 'Purchase', data: purchaseData.values, backgroundColor: '#34c759' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { ticks: { color: axisColor }, grid: { color: gridColor } },
+      y: { ticks: { color: axisColor }, grid: { color: gridColor } }
+    }
+  }
+});
+const laCtx = document.getElementById('laChart');
+const laChart = new Chart(laCtx, {
+  type: 'line',
+  data: {
+    labels: loadingData.labels,
+    datasets: [
+      { label: 'Loading Qty', data: loadingData.values, borderColor: '#ff9f0a', backgroundColor: 'rgba(255,159,10,0.2)' },
+      { label: 'Invoice', data: invoiceData.values, borderColor: '#ff3b30', backgroundColor: 'rgba(255,59,48,0.2)' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      x: { ticks: { color: axisColor }, grid: { color: gridColor } },
+      y: { ticks: { color: axisColor }, grid: { color: gridColor } }
+    }
+  }
+});
+document.addEventListener("themechange",()=>{
+  const c = currentAxisColors();
+  axisColor = c.axisColor;
+  gridColor = c.gridColor;
+  spChart.options.scales.x.ticks.color = axisColor;
+  spChart.options.scales.y.ticks.color = axisColor;
+  spChart.options.scales.x.grid.color = gridColor;
+  spChart.options.scales.y.grid.color = gridColor;
+  laChart.options.scales.x.ticks.color = axisColor;
+  laChart.options.scales.y.ticks.color = axisColor;
+  laChart.options.scales.x.grid.color = gridColor;
+  laChart.options.scales.y.grid.color = gridColor;
+  spChart.update();
+  laChart.update();
+});
+const gran = document.getElementById('granularity');
+function applyGranularity(){
+  const v = gran ? gran.value : 'month';
+  const mapSales = v==='day' ? saleDay : (v==='year' ? saleYear : saleData);
+  const mapPurchase = v==='day' ? purchaseDay : (v==='year' ? purchaseYear : purchaseData);
+  const mapLoading = v==='day' ? loadingDay : (v==='year' ? loadingYear : loadingData);
+  const mapInvoice = v==='day' ? invoiceDay : (v==='year' ? invoiceYear : invoiceData);
+  spChart.data.labels = mapSales.labels;
+  spChart.data.datasets[0].data = mapSales.values;
+  spChart.data.datasets[1].data = mapPurchase.values;
+  laChart.data.labels = mapLoading.labels;
+  laChart.data.datasets[0].data = mapLoading.values;
+  laChart.data.datasets[1].data = mapInvoice.values;
+  spChart.update();
+  laChart.update();
+}
+applyGranularity();
+if(gran){
+  gran.addEventListener('change', applyGranularity);
+}
+const supplierFilter = document.getElementById('supplierFilter');
+const poRows = Array.from(document.querySelectorAll('#poTableBody tr'));
+supplierFilter.addEventListener('change',()=>{
+  const v = supplierFilter.value;
+  poRows.forEach(tr=>{
+    const s = tr.getAttribute('data-supplier');
+    tr.style.display = (v==='All' || v===s) ? '' : 'none';
+  });
+});
+</script>
+
+{% endblock %}

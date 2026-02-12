@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>📊 Trading Control Report</h3>
+
+<div class="row text-center">
+
+<div class="col-md-3">
+<div class="card p-3 bg-dark text-white">
+<h6>Total Sale</h6>
+<h4>{{summary.so_total}}</h4>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card p-3 bg-dark text-white">
+<h6>Total Purchase</h6>
+<h4>{{summary.po_total}}</h4>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card p-3 bg-dark text-white">
+<h6>Total Loaded Qty</h6>
+<h4>{{summary.loaded_qty}}</h4>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="card p-3 bg-dark text-white">
+<h6>Total Invoiced</h6>
+<h4>{{summary.invoice_total}}</h4>
+</div>
+</div>
+
+</div>
+
+<hr>
+
+<table class="table table-bordered table-light">
+
+<tr class="table-secondary">
+<th>Item</th>
+<th>SO Qty</th>
+<th>Loaded Qty</th>
+<th>Pending SO</th>
+<th>PO Qty</th>
+<th>Pending PO</th>
+</tr>
+
+{% for i in items %}
+<tr>
+<td>
+<a href="/item_drill/{{i[0]}}">{{i[0]}}</a>
+</td>
+<td>{{i[1]}}</td>
+<td>{{i[2]}}</td>
+<td>{{i[3]}}</td>
+<td>{{i[4]}}</td>
+<td>{{i[5]}}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+{% endblock %}

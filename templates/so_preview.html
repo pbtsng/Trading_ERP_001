@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card p-3">
+  <h4>Sale Order #{{r[0]}}</h4>
+  <p>Date: {{r[1]}}</p>
+  <p>Customer: {{r[2]}}{% if r[3] %} ({{r[3]}}){% endif %}</p>
+  <p>Item: {{r[4]}}</p>
+  <p>Qty: {{r[5]}} | Rate: {{r[6]}} | Amount: {{r[7]}}</p>
+  <p>Status: {{r[8]}}</p>
+  <div class="d-flex gap-2 mt-2">
+    <form method="post" action="{{ url_for('so_accept', so_id=r[0]) }}?token={{ so_token(r[0]) }}">
+      <button class="btn btn-success">Accept</button>
+    </form>
+    <form method="post" action="{{ url_for('so_decline', so_id=r[0]) }}?token={{ so_token(r[0]) }}">
+      <button class="btn btn-danger">Decline</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
