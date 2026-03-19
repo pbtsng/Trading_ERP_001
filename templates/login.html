@@ -1,8 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
-<form method="post" class="card p-4 col-4 mx-auto">
-<input name="username" class="form-control mb-2" placeholder="Username">
-<input name="password" type="password" class="form-control mb-2">
-<button class="btn btn-primary">Login</button>
-</form>
+<div style="min-height:80vh;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div style="width:100%;max-width:400px">
+        <!-- Logo / Brand -->
+        <div style="text-align:center;margin-bottom:32px">
+            <div
+                style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:16px;margin-bottom:16px">
+                <span style="font-size:28px">⚙</span>
+            </div>
+            <h1 style="font-size:28px;font-weight:800;letter-spacing:-0.5px;color:#f8fafc;margin:0">COFFERS</h1>
+            <p style="color:#64748b;font-size:13px;margin-top:4px;letter-spacing:0.04em;text-transform:uppercase">
+                Metallics ERP</p>
+        </div>
+
+        <!-- Login Card -->
+        <form method="post"
+            style="background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;backdrop-filter:blur(12px)">
+            <h2 style="font-size:18px;font-weight:700;color:#f8fafc;margin:0 0 6px">Sign in</h2>
+            <p style="color:#64748b;font-size:13px;margin:0 0 24px">Enter your credentials to access the ERP</p>
+
+            <div style="margin-bottom:16px">
+                <label
+                    style="display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em">Username</label>
+                <input name="username" autocomplete="username" placeholder="Enter username"
+                    style="width:100%;display:block" autofocus>
+            </div>
+
+            <div style="margin-bottom:28px">
+                <label
+                    style="display:block;font-size:12px;font-weight:600;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em">Password</label>
+                <input name="password" type="password" autocomplete="current-password" placeholder="Enter password"
+                    style="width:100%;display:block">
+            </div>
+
+            <button type="submit" class="btn btn-primary"
+                style="width:100%;justify-content:center;font-size:14px;padding:11px 18px">
+                Sign in &rarr;
+            </button>
+        </form>
+
+        <p style="text-align:center;color:#334155;font-size:12px;margin-top:24px">
+            Coffers Metallics Private Limited &copy; {{ 2026 }}
+        </p>
+    </div>
+</div>
 {% endblock %}

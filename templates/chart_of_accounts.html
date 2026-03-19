@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-heading">
+  <h3>📚 Chart of Accounts</h3>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-md-4">
+    <div class="card">
+      <div class="card-header">Account Types</div>
+      <div class="card-body" style="padding:8px">
+        <ul class="list-group">
+          {% for t, count in summary %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="/chart_of_accounts?type={{ t }}">{{ t }}</a>
+            <span class="badge bg-primary rounded-pill">{{ count }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>{{ selected or 'Select a type' }}</span>
+        <input id="ledgerSearch" class="form-control"
+          style="max-width:240px;border:none;background:rgba(255,255,255,0.05);" placeholder="Search ledger…">
+      </div>
+      <div class="card-body">
+        <div id="coaTree">
+          {% if tree and selected %}
+          {% for g in tree %}
+          <div class="mb-2 coa-group">
+            <div class="d-flex justify-content-between align-items-center">
+              <button type="button" class="btn btn-sm btn-outline-secondary me-2 coa-toggle"
+                data-target="grp{{ g.id }}">▾</button>
+              <div class="flex-grow-1">{{ g.name }}</div>
+              <form method="post" class="d-flex ms-2" style="max-width:260px">
+                <input type="hidden" name="action" value="add_ledger">
+                <input type="hidden" name="type" value="{{ selected }}">
+                <input type="hidden" name="group_id" value="{{ g.id }}">
+                <input name="ledger_name" class="form-control form-control-sm me-1" placeholder="Add ledger">
+                <button class="btn btn-sm btn-success">+</button>
+              </form>
+            </div>
+            <ul id="grp{{ g.id }}" class="list-group mt-1 ms-4">
+              {% for l in g.ledgers %}
+              <li class="list-group-item d-flex justify-content-between align-items-center coa-node">
+                <span class="coa-name">{{ l[1] }}</span>
+                <form method="post" onsubmit="return confirm('Delete ledger {{ l[1] }}?')">
+                  <input type="hidden" name="action" value="delete_ledger">
+                  <input type="hidden" name="type" value="{{ selected }}">
+                  <input type="hidden" name="ledger_id" value="{{ l[0] }}">
+                  <button class="btn btn-sm btn-outline-danger">×</button>
+                </form>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="text-muted">Select a type to view groups and ledgers.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".coa-toggle").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const id = btn.getAttribute("data-target");
+          const el = document.getElementById(id);
+          if (!el) return;
+          const hidden = el.style.display === "none";
+          el.style.display = hidden ? "" : "none";
+          btn.textContent = hidden ? "▾" : "▸";
+        });
+      });
+      const search = document.getElementById("ledgerSearch");
+      if (search) {
+        search.addEventListener("input", function () {
+          const q = this.value.toLowerCase();
+          document.querySelectorAll(".coa-group").forEach(function (g) {
+            let any = false;
+            g.querySelectorAll(".coa-node").forEach(function (li) {
+              const name = li.querySelector(".coa-name").textContent.toLowerCase();
+              const match = !q || name.includes(q);
+              li.style.display = match ? "" : "none";
+              if (match) any = true;
+            });
+            g.style.display = any || !q ? "" : "none";
+          });
+        });
+      }
+    });
+  </script>
+
+  {% endblock %}

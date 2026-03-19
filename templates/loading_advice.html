@@ -9,7 +9,7 @@
 </button>
 </a>
 
-<form method="post">
+<form method="post" action="/loading_advice">
 
 <input type="date" name="date"
 class="form-control mb-2"
@@ -110,6 +110,8 @@ PO{{p[0]}} | {{p[1]}} | {{p[2]}} | {{p[3]}} | Bal:{{p[4]}} | Rate:{{p[5]}}
 <h6>LA# {{la[0]}}</h6>
 <div>Date: {{la[1]}}</div>
 <div>Vehicle: {{la[2]}}</div>
+<div>Customer: {{ la[5] or '-' }}</div>
+<div>Supplier: {{ la[6] or '-' }}</div>
 
 <br>
 
@@ -133,7 +135,22 @@ PO{{p[0]}} | {{p[1]}} | {{p[2]}} | {{p[3]}} | Bal:{{p[4]}} | Rate:{{p[5]}}
 
 <br>
 
-<a href="/sale_invoice/{{ la[0] }}" class="btn btn-success w-100">🧾 Create Sale Invoice</a>
+<a href="/loading_confirm/{{ la[0] }}" class="btn btn-primary w-100 mb-2">✅ Loading Confirmation</a>
+<a href="/sale_invoice/{{ la[0] }}" class="btn btn-success w-100 mb-2">🧾 Create Sale Invoice</a>
+<a href="/grn/{{ la[0] }}" class="btn btn-warning w-100 mb-2">📥 Create GRN</a>
+<div class="d-flex justify-content-between">
+  <a class="btn btn-outline-success w-100 me-2" target="_blank" href="/la_whatsapp/{{ la[0] }}">WhatsApp</a>
+  <a class="btn btn-outline-primary w-100" target="_blank" href="{{ url_for('la_preview', la_id=la[0], token=la_token(la[0])) }}">Preview</a>
+  <div class="ms-2 align-self-center">
+    {% if la[4] == "ACCEPTED" %}
+      <span title="Accepted">✅✅</span>
+    {% elif la[4] == "DECLINED" %}
+      <span title="Declined">❌</span>
+    {% elif la[3] %}
+      <span title="Sent for approval">✅</span>
+    {% endif %}
+  </div>
+</div>
 
 {% if session.role in ["admin","manager"] %}
 <div class="mt-2 la-actions">
@@ -216,6 +233,18 @@ row.querySelector('[name="item"]').value = data.item;
 });
 
 }
+
+document.addEventListener("DOMContentLoaded", function(){
+  {% if preselect_so_id %}
+  const soSelect = document.querySelector('select[name="so_id"]');
+  if(soSelect){
+    soSelect.value = "{{ preselect_so_id }}";
+    if(soSelect.value === "{{ preselect_so_id }}"){
+      loadSO(soSelect);
+    }
+  }
+  {% endif %}
+});
 
 </script>
 

@@ -1,35 +1,77 @@
+{% set messages = get_flashed_messages() %}
+{% if request.args.get('created') %}
+<div class="alert alert-success print-hide">Invoice #{{ head[0] }} saved successfully</div>
+{% elif messages %}
+<div class="alert alert-success print-hide">{{ messages[0] }}</div>
+{% endif %}
 <h2 align="center">TAX INVOICE</h2>
 
-<b>Invoice No:</b> {{head[0]}} <br>
-<b>Date:</b> {{head[3]}} <br>
-<b>Customer:</b> {{head[2]}} <br>
+<b>Invoice No:</b> {{ head["inv_id"] }} <br>
+<b>Date:</b> {{ head["inv_date"] }} <br>
+<b>Customer:</b> {{ head["customer"] }} <br>
+{% if party_state %}
+<b>Place of Supply:</b> {{ party_state }} <br>
+{% endif %}
 
 <hr>
 
-<table border="1" width="100%">
+<table border="1" width="100%" cellspacing="0" cellpadding="4">
 <tr>
-<th>Item</th>
-<th>Section</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Amount</th>
+  <th>Item</th>
+  <th>Section</th>
+  <th>Qty</th>
+  <th>Rate</th>
+  <th>Taxable Amount</th>
+  <th>CGST</th>
+  <th>SGST</th>
+  <th>IGST</th>
+  <th>Line Total</th>
 </tr>
 
-{% for r in body %}
+{% for r in body_lines %}
 <tr>
-<td>{{r[0]}}</td>
-<td>{{r[1]}}</td>
-<td>{{r[2]}}</td>
-<td>{{r[3]}}</td>
-<td>{{r[4]}}</td>
+  <td>{{ r.item }}</td>
+  <td>{{ r.section }}</td>
+  <td align="right">{{ '%.2f'|format(r.qty) }}</td>
+  <td align="right">{{ '%.2f'|format(r.rate) }}</td>
+  <td align="right">{{ '%.2f'|format(r.amount) }}</td>
+  <td align="right">{{ '%.2f'|format(r.cgst) }}</td>
+  <td align="right>{{ '%.2f'|format(r.sgst) }}</td>
+  <td align="right">{{ '%.2f'|format(r.igst) }}</td>
+  <td align="right">{{ '%.2f'|format(r.amount + r.cgst + r.sgst + r.igst) }}</td>
 </tr>
 {% endfor %}
 </table>
 
 <hr>
 
-<b>Grand Total:</b> {{head[4]}}
+<table width="100%" cellspacing="0" cellpadding="4">
+  <tr>
+    <td align="right"><b>Taxable Value:</b></td>
+    <td align="right" style="width:120px">{{ '%.2f'|format(taxable_total) }}</td>
+  </tr>
+  <tr>
+    <td align="right"><b>CGST Total:</b></td>
+    <td align="right">{{ '%.2f'|format(cgst_total) }}</td>
+  </tr>
+  <tr>
+    <td align="right"><b>SGST Total:</b></td>
+    <td align="right">{{ '%.2f'|format(sgst_total) }}</td>
+  </tr>
+  <tr>
+    <td align="right"><b>IGST Total:</b></td>
+    <td align="right">{{ '%.2f'|format(igst_total) }}</td>
+  </tr>
+  <tr>
+    <td align="right"><b>Total GST:</b></td>
+    <td align="right">{{ '%.2f'|format(gst_total) }}</td>
+  </tr>
+  <tr>
+    <td align="right"><b>Grand Total:</b></td>
+    <td align="right"><b>{{ '%.2f'|format(grand_total) }}</b></td>
+  </tr>
+</table>
 
-<br><br>
+<br>
 
-<button onclick="window.print()">Print</button>
+<button class="print-hide" onclick="window.print()">Print</button>

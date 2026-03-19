@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Balance Sheet</h3>
+
+<form method="get" class="card p-3 mb-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-12 col-md-3">
+      <label>From</label>
+      <input type="date" name="from" value="{{ from_date }}" class="form-control">
+    </div>
+    <div class="col-12 col-md-3">
+      <label>To</label>
+      <input type="date" name="to" value="{{ to_date }}" class="form-control">
+    </div>
+    <div class="col-12 col-md-3">
+      <button class="btn btn-primary">Show</button>
+    </div>
+    <div class="col-12 col-md-3 text-end">
+      <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
+    </div>
+  </div>
+</form>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-6">
+    <div class="card p-3">
+      <h5>Assets</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Name</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in asset_rows %}
+            <tr>
+              <td>{{ r.group }}</td>
+              <td>{{ r.name }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.amount or 0) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="2" class="text-end">Total Assets</th>
+              <th class="text-end">{{ '%.2f'|format(total_assets or 0) }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6">
+    <div class="card p-3 mb-3">
+      <h5>Liabilities</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Name</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in liability_rows %}
+            <tr>
+              <td>{{ r.group }}</td>
+              <td>{{ r.name }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.amount or 0) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="2" class="text-end">Total Liabilities</th>
+              <th class="text-end">{{ '%.2f'|format(total_liabilities or 0) }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="card p-3">
+      <h5>Equity</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th>Group</th>
+              <th>Name</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in equity_rows %}
+            <tr>
+              <td>{{ r.group }}</td>
+              <td>{{ r.name }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.amount or 0) }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td colspan="2">Net Profit / (Loss)</td>
+              <td class="text-end">{{ '%.2f'|format(net_profit or 0) }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="2" class="text-end">Total Equity (incl. Profit)</th>
+              <th class="text-end">{{ '%.2f'|format(equity_with_profit or 0) }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card p-3 mt-3">
+  <div class="row">
+    <div class="col-12 col-md-6">
+      <div class="d-flex justify-content-between">
+        <div class="fw-bold">Total Assets</div>
+        <div class="fw-bold">{{ '%.2f'|format(total_assets or 0) }}</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6">
+      <div class="d-flex justify-content-between">
+        <div class="fw-bold">Total Liabilities + Equity</div>
+        <div class="fw-bold">{{ '%.2f'|format(total_liab_equity or 0) }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-between mt-2">
+    <div class="fw-bold">Difference (Assets - Liabilities - Equity)</div>
+    <div class="fw-bold">{{ '%.2f'|format(diff or 0) }}</div>
+  </div>
+</div>
+
+{% endblock %}
+

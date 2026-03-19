@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Order Timeline (Sales &amp; Purchase)</h3>
+
+<form method="get" class="card p-3 mb-3">
+  <div class="row g-2">
+    <div class="col-6 col-md-3">
+      <label>From Date</label>
+      <input type="date" name="from" value="{{ from_date }}" class="form-control">
+    </div>
+    <div class="col-6 col-md-3">
+      <label>To Date</label>
+      <input type="date" name="to" value="{{ to_date }}" class="form-control">
+    </div>
+    <div class="col-12 col-md-3 d-flex align-items-end">
+      <button class="btn btn-primary me-2">Filter</button>
+      <a class="btn btn-success" href="/export_order_timeline?from={{ from_date }}&to={{ to_date }}">Export Excel</a>
+    </div>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-sm table-bordered table-striped">
+    <thead class="table-secondary">
+      <tr>
+        <th>Tran Type</th>
+        <th>State</th>
+        <th>Doc No</th>
+        <th>Doc Date</th>
+        <th>Order Ref</th>
+        <th>Party</th>
+        <th class="text-end">Qty</th>
+        <th class="text-end">Rate</th>
+        <th class="text-end">Order Bal Qty</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.tran_type }}</td>
+        <td>{{ r.state }}</td>
+        <td>{{ r.order_no }}</td>
+        <td>{{ r.order_date }}</td>
+        <td>{{ r.order_ref }}</td>
+        <td>{{ r.party }}</td>
+        <td class="text-end">{{ '%.3f'|format(r.qty or 0) }}</td>
+        <td class="text-end">{{ '%.2f'|format(r.rate or 0) }}</td>
+        <td class="text-end">{{ '%.3f'|format(r.order_balance or 0) }}</td>
+        <td>{{ r.status }}</td>
+      </tr>
+      {% endfor %}
+      {% if not rows %}
+      <tr><td colspan="10" class="text-center text-muted">No records in this period.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

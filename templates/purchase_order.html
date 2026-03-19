@@ -8,7 +8,7 @@
 <!-- DATE -->
 <input type="date" name="date"
 class="form-control mb-2"
-value="{{ today }}" required>
+value="{{ today }}" {{ field_attr(field_config, "date", 1) }}>
 
 
 <!-- SUPPLIER -->
@@ -16,7 +16,7 @@ value="{{ today }}" required>
 
 <div class="input-group mb-2">
 
-<select name="acc_id" class="form-control" required>
+<select name="acc_id" class="form-control" {{ field_attr(field_config, "acc_id", 2) }}>
 
 <option value="">-- Select Supplier --</option>
 
@@ -39,7 +39,7 @@ onclick="openSupplier()">➕</button>
 
 <div class="input-group mb-2">
 
-<select name="item_id" class="form-control" required>
+<select name="item_id" class="form-control" {{ field_attr(field_config, "item_id", 3) }}>
 
 <option value="">-- Select Item --</option>
 
@@ -58,12 +58,12 @@ onclick="openItem()">➕</button>
 <!-- QTY -->
 <input name="qty"
 class="form-control mb-2"
-placeholder="Quantity" required>
+placeholder="Quantity" {{ field_attr(field_config, "qty", 4) }}>
 
 <!-- RATE -->
 <input name="rate"
 class="form-control mb-2"
-placeholder="Rate" required>
+placeholder="Rate" {{ field_attr(field_config, "rate", 5) }}>
 
 <button class="btn btn-success">Save Purchase Order</button>
 
@@ -118,12 +118,13 @@ placeholder="Rate" required>
 {% if r[7] != "LOCKED" and session.role in ["admin","manager"] %}
 <a href="/purchase_edit/{{r[0]}}" class="btn btn-primary btn-sm">Edit</a>
 <a href="/purchase_delete/{{r[0]}}" class="btn btn-danger btn-sm">Delete</a>
-{% set preview_url = url_for('po_preview', po_id=r[0], token=po_token(r[0]), _external=True) %}
-{% set msg = 'Purchase Order #' ~ r[0] ~ ' for ' ~ r[2] ~ ' (' ~ r[3] ~ ') Qty ' ~ r[4] ~ ' Rate ' ~ r[5] ~ ' Amount ' ~ r[6] ~ '. Review and accept: ' ~ preview_url %}
-{% if r[8] %}
-<a class="btn btn-success btn-sm" target="_blank" href="https://wa.me/{{r[8]}}?text={{msg|urlencode}}">WhatsApp</a>
-{% else %}
-<a class="btn btn-success btn-sm" target="_blank" href="https://wa.me/?text={{msg|urlencode}}">WhatsApp</a>
+<a class="btn btn-success btn-sm" target="_blank" href="/po_whatsapp/{{ r[0] }}">WhatsApp</a>
+{% if r[7] == "ACCEPTED" %}
+  <span title="Accepted">✅✅</span>
+{% elif r[7] == "DECLINED" %}
+  <span title="Declined">❌</span>
+{% elif r[9] %}
+  <span title="Sent for approval">✅</span>
 {% endif %}
 {% elif r[6] == "LOCKED" %}
 <span class="text-muted">Locked</span>

@@ -12,6 +12,17 @@
 <option>Supplier</option>
 </select>
 
+<select name="tds_section">
+<option value="">[No TDS]</option>
+<option value="194Q">194Q – Purchase of Goods</option>
+<option value="192B">192B – PF Withdrawal</option>
+<option value="194H">194H – Commission/Brokerage</option>
+<option value="194J">194J – Professional/Technical Fees</option>
+<option value="194A">194A – Interest (other than securities)</option>
+</select>
+
+<input name="tds_rate" placeholder="TDS Rate %">
+
 <button>Add</button>
 
 </form>
@@ -23,13 +34,17 @@
 <th>ID</th>
 <th>Name</th>
 <th>Type</th>
+<th>TDS Section</th>
+<th>TDS Rate %</th>
 </tr>
 
 {% for r in rows %}
 <tr>
-<td>{{r[0]}}</td>
-<td>{{r[1]}}</td>
-<td>{{r[2]}}</td>
+<td>{{ r["acc_id"] }}</td>
+<td>{{ r["acc_name"] }}</td>
+<td>{{ r["acc_type"] }}</td>
+<td>{{ r["tds_section"] }}</td>
+<td>{{ '%.2f'|format(r["tds_rate"] or 0) }}</td>
 </tr>
 {% endfor %}
 </table>

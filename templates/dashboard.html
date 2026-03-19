@@ -6,24 +6,28 @@
     <div class="card p-3">
       <div>Total Business</div>
       <div class="fs-4">₹ {{ '%.2f'|format(kpi.total_business) }}</div>
+      <div class="mt-1"><a href="/sale_invoice" class="small">View Sale Invoices</a></div>
     </div>
   </div>
   <div class="col-12 col-md-6 col-lg-3">
     <div class="card p-3">
       <div>Total Profit</div>
       <div class="fs-4">₹ {{ '%.2f'|format(kpi.total_profit) }}</div>
+      <div class="mt-1"><a href="/control_report" class="small">Open Control Report</a></div>
     </div>
   </div>
   <div class="col-12 col-md-6 col-lg-3">
     <div class="card p-3">
       <div>In Pipeline</div>
       <div class="fs-4">₹ {{ '%.2f'|format(kpi.in_pipeline) }}</div>
+      <div class="mt-1"><a href="/sale" class="small">View Open Sale Orders</a></div>
     </div>
   </div>
   <div class="col-12 col-md-6 col-lg-3">
     <div class="card p-3">
       <div>Brokerage Generated</div>
       <div class="fs-4">₹ {{ '%.2f'|format(kpi.brokerage) }}</div>
+      <div class="mt-1"><a href="/control_report" class="small">View Brokerage Detail</a></div>
     </div>
   </div>
 </div>
@@ -32,8 +36,12 @@
   <div class="col-12 col-lg-6">
     <div class="card p-3">
       <div class="d-flex justify-content-between align-items-center mb-2">
-        <div>Sales vs Purchase</div>
-        <select id="granularity" class="form-select form-select-sm" style="max-width:160px">
+        <div>
+          Sales vs Purchase
+          <a href="/sale" class="small ms-2">Sales</a>
+          <a href="/purchase" class="small ms-2">Purchase</a>
+        </div>
+        <select id="granularity" class="form-select form-select-sm" style="max-width:160px" aria-label="Granularity">
           <option value="month" selected>Month</option>
           <option value="day">Day</option>
           <option value="year">Year</option>
@@ -44,7 +52,11 @@
   </div>
   <div class="col-12 col-lg-6">
     <div class="card p-3">
-      <div class="mb-2">Loading Advice Qty & Invoices</div>
+      <div class="mb-2">
+        Loading Advice Qty & Invoices
+        <a href="/loading_advice" class="small ms-2">Loading Advice</a>
+        <a href="/sale_invoice" class="small ms-2">Sale Invoices</a>
+      </div>
       <div class="chart-box"><canvas id="laChart"></canvas></div>
     </div>
   </div>
@@ -54,8 +66,11 @@
   <div class="col-12">
     <div class="card p-3">
       <div class="d-flex justify-content-between align-items-center">
-        <div class="mb-2">Standing Purchase Orders</div>
-        <select id="supplierFilter" class="form-select" style="max-width:240px">
+        <div class="mb-2">
+          Standing Purchase Orders
+          <a href="/purchase" class="small ms-2">Go to Purchase</a>
+        </div>
+        <select id="supplierFilter" class="form-select" style="max-width:240px" aria-label="Supplier filter">
           <option value="All">All Suppliers</option>
           {% for s in suppliers %}
           <option value="{{s}}">{{s}}</option>
@@ -66,7 +81,7 @@
         <table class="table table-sm">
           <thead>
             <tr>
-              <th>PO#</th><th>Date</th><th>Supplier</th><th>Item</th><th>Qty</th><th>Supplied</th><th>Pending</th>
+              <th scope="col">PO#</th><th scope="col">Date</th><th scope="col">Supplier</th><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Supplied</th><th scope="col">Pending</th>
             </tr>
           </thead>
           <tbody id="poTableBody">
@@ -87,6 +102,46 @@
     </div>
   </div>
 </div>
+<div class="row g-3 mt-3">
+  <div class="col-12">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="mb-2">
+          Open Sale Orders
+          <a href="/sale" class="small ms-2">Go to Sales</a>
+        </div>
+        <select id="customerFilter" class="form-select" style="max-width:240px" aria-label="Customer filter">
+          <option value="All">All Customers</option>
+          {% for c in customers %}
+          <option value="{{c}}">{{c}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th scope="col">SO#</th><th scope="col">Date</th><th scope="col">Customer</th><th scope="col">Item</th><th scope="col">Qty</th><th scope="col">Supplied</th><th scope="col">Pending</th>
+            </tr>
+          </thead>
+          <tbody id="soTableBody">
+            {% for r in pending_sos %}
+            <tr data-customer="{{r['acc_name']}}">
+              <td>{{r['so_id']}}</td>
+              <td>{{r['so_date']}}</td>
+              <td>{{r['acc_name']}}</td>
+              <td>{{r['item_name']}}</td>
+              <td>{{r['qty']}}</td>
+              <td>{{r['supplied']}}</td>
+              <td>{{r['pending']}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
@@ -98,13 +153,10 @@ const purchaseData = {
   labels: {{ purchase_months|map(attribute=0)|list|tojson }},
   values: {{ purchase_months|map(attribute=1)|list|tojson }}
 };
-const loadingData = {
-  labels: {{ loading_months|map(attribute=0)|list|tojson }},
-  values: {{ loading_months|map(attribute=1)|list|tojson }}
-};
-const invoiceData = {
-  labels: {{ invoice_months|map(attribute=0)|list|tojson }},
-  values: {{ invoice_months|map(attribute=1)|list|tojson }}
+const laMonth = {
+  labels: {{ la_labels_month|tojson }},
+  loading: {{ la_loading_month|tojson }},
+  invoiceCount: {{ la_invoice_month_count|tojson }}
 };
 const saleDay = {
   labels: {{ sale_days|map(attribute=0)|list|tojson }},
@@ -122,21 +174,15 @@ const purchaseYear = {
   labels: {{ purchase_years|map(attribute=0)|list|tojson }},
   values: {{ purchase_years|map(attribute=1)|list|tojson }}
 };
-const loadingDay = {
-  labels: {{ loading_days|map(attribute=0)|list|tojson }},
-  values: {{ loading_days|map(attribute=1)|list|tojson }}
+const laDay = {
+  labels: {{ la_labels_day|tojson }},
+  loading: {{ la_loading_day|tojson }},
+  invoiceCount: {{ la_invoice_day_count|tojson }}
 };
-const loadingYear = {
-  labels: {{ loading_years|map(attribute=0)|list|tojson }},
-  values: {{ loading_years|map(attribute=1)|list|tojson }}
-};
-const invoiceDay = {
-  labels: {{ invoice_days|map(attribute=0)|list|tojson }},
-  values: {{ invoice_days|map(attribute=1)|list|tojson }}
-};
-const invoiceYear = {
-  labels: {{ invoice_years|map(attribute=0)|list|tojson }},
-  values: {{ invoice_years|map(attribute=1)|list|tojson }}
+const laYear = {
+  labels: {{ la_labels_year|tojson }},
+  loading: {{ la_loading_year|tojson }},
+  invoiceCount: {{ la_invoice_year_count|tojson }}
 };
 const spCtx = document.getElementById('spChart');
 function currentAxisColors(){
@@ -168,10 +214,10 @@ const laCtx = document.getElementById('laChart');
 const laChart = new Chart(laCtx, {
   type: 'line',
   data: {
-    labels: loadingData.labels,
+    labels: laMonth.labels,
     datasets: [
-      { label: 'Loading Qty', data: loadingData.values, borderColor: '#ff9f0a', backgroundColor: 'rgba(255,159,10,0.2)' },
-      { label: 'Invoice', data: invoiceData.values, borderColor: '#ff3b30', backgroundColor: 'rgba(255,59,48,0.2)' }
+      { label: 'Loading Qty', data: laMonth.loading, borderColor: '#ff9f0a', backgroundColor: 'rgba(255,159,10,0.2)' },
+      { label: 'Invoice Qty', data: laMonth.invoiceCount, borderColor: '#ff3b30', backgroundColor: 'rgba(255,59,48,0.2)' }
     ]
   },
   options: {
@@ -202,14 +248,13 @@ function applyGranularity(){
   const v = gran ? gran.value : 'month';
   const mapSales = v==='day' ? saleDay : (v==='year' ? saleYear : saleData);
   const mapPurchase = v==='day' ? purchaseDay : (v==='year' ? purchaseYear : purchaseData);
-  const mapLoading = v==='day' ? loadingDay : (v==='year' ? loadingYear : loadingData);
-  const mapInvoice = v==='day' ? invoiceDay : (v==='year' ? invoiceYear : invoiceData);
+  const mapLA = v==='day' ? laDay : (v==='year' ? laYear : laMonth);
   spChart.data.labels = mapSales.labels;
   spChart.data.datasets[0].data = mapSales.values;
   spChart.data.datasets[1].data = mapPurchase.values;
-  laChart.data.labels = mapLoading.labels;
-  laChart.data.datasets[0].data = mapLoading.values;
-  laChart.data.datasets[1].data = mapInvoice.values;
+  laChart.data.labels = mapLA.labels;
+  laChart.data.datasets[0].data = mapLA.loading;
+  laChart.data.datasets[1].data = mapLA.invoiceCount;
   spChart.update();
   laChart.update();
 }
@@ -219,13 +264,26 @@ if(gran){
 }
 const supplierFilter = document.getElementById('supplierFilter');
 const poRows = Array.from(document.querySelectorAll('#poTableBody tr'));
-supplierFilter.addEventListener('change',()=>{
-  const v = supplierFilter.value;
-  poRows.forEach(tr=>{
-    const s = tr.getAttribute('data-supplier');
-    tr.style.display = (v==='All' || v===s) ? '' : 'none';
+if(supplierFilter){
+  supplierFilter.addEventListener('change',()=>{
+    const v = supplierFilter.value;
+    poRows.forEach(tr=>{
+      const s = tr.getAttribute('data-supplier');
+      tr.style.display = (v==='All' || v===s) ? '' : 'none';
+    });
   });
-});
+}
+const customerFilter = document.getElementById('customerFilter');
+const soRows = Array.from(document.querySelectorAll('#soTableBody tr'));
+if(customerFilter){
+  customerFilter.addEventListener('change',()=>{
+    const v = customerFilter.value;
+    soRows.forEach(tr=>{
+      const s = tr.getAttribute('data-customer');
+      tr.style.display = (v==='All' || v===s) ? '' : 'none';
+    });
+  });
+}
 </script>
 
 {% endblock %}

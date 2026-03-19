@@ -1,26 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h3>Create Sale Invoice</h3>
+<h3>Create GRN</h3>
 
 <form method="post">
 
 <label>Date</label>
 <input type="date" name="date" value="{{today}}" class="form-control mb-2">
 
-{% if companies %}
-<label>Customer (Invoice To)</label>
-<select name="customer" class="form-control mb-2">
-  {% for c in companies %}
-  <option value="{{ c.print_name }}" {% if c.acc_id==default_company_id %}selected{% endif %}>
-    {{ c.print_name }}{% if c.acc_name != c.print_name %} ({{ c.acc_name }}){% endif %}
-  </option>
-  {% endfor %}
-</select>
-{% else %}
-<label>Customer</label>
-<input name="customer" value="{{customer}}" class="form-control mb-2" readonly>
-{% endif %}
+<label>Supplier</label>
+<input name="supplier" value="{{supplier}}" class="form-control mb-2" readonly>
 
 <table class="table table-bordered">
 
@@ -28,8 +17,8 @@
 <th>Item</th>
 <th>Section</th>
 <th>Qty</th>
-<th>Rate (before GST)</th>
-<th>Amount (Taxable)</th>
+<th>Rate</th>
+<th>Amount</th>
 </tr>
 
 <tbody id="rows">
@@ -50,7 +39,7 @@
 </td>
 
 <td>
-<input name="rate" class="form-control rate" oninput="calc(this)">
+<input name="rate" value="{{'%.2f'|format(r[3])}}" class="form-control rate" oninput="calc(this)">
 </td>
 
 <td>
@@ -107,37 +96,35 @@
 
 <br>
 
-<button class="btn btn-success">Save Invoice</button>
+<button class="btn btn-success">Save GRN</button>
 
 </form>
 
 <hr>
 
-<h4>Saved Sale Invoices</h4>
+<h4>Saved GRNs</h4>
 
 <div class="table-responsive">
 <table class="table table-bordered table-sm">
   <thead>
     <tr>
-      <th>Invoice#</th>
+      <th>GRN#</th>
       <th>Date</th>
-      <th>Customer</th>
+      <th>Supplier</th>
       <th>Qty</th>
       <th>Total</th>
-      <th>Action</th>
     </tr>
   </thead>
   <tbody>
-    {% for inv in invoices or [] %}
+    {% for g in grns or [] %}
     <tr>
-      <td>{{ inv[0] }}</td>
-      <td>{{ inv[1] }}</td>
-      <td>{{ inv[2] }}</td>
-      <td>{{ '%.2f'|format(inv[3]) }}</td>
-      <td>{{ '%.2f'|format(inv[4]) }}</td>
-      <td class="d-flex gap-1">
-        <a class="btn btn-primary btn-sm" href="/print_invoice/{{ inv[0] }}">Print</a>
-        <a class="btn btn-warning btn-sm" href="/sale_return/{{ inv[0] }}">Return</a>
+      <td>{{ g[0] }}</td>
+      <td>{{ g[1] }}</td>
+      <td>{{ g[2] }}</td>
+      <td>{{ '%.2f'|format(g[3]) }}</td>
+      <td>
+        {{ '%.2f'|format(g[4]) }}
+        <a href="/purchase_return/{{ g[0] }}" class="btn btn-warning btn-sm ms-2">Return</a>
       </td>
     </tr>
     {% endfor %}
@@ -149,9 +136,9 @@
 function calc(el){
 let row = el.closest("tr")
 let qty = parseFloat(row.querySelector(".qty").value)
-let final_rate = parseFloat(el.value)
-if(isNaN(final_rate)) final_rate = 0
-let amt = qty * final_rate
+let rate = parseFloat(el.value)
+if(isNaN(rate)) rate = 0
+let amt = qty * rate
 row.querySelector(".amount").value = amt.toFixed(2)
 let total = 0
 document.querySelectorAll(".amount").forEach(a=>{

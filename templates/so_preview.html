@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card p-3">
-  <h4>Sale Order #{{r[0]}}</h4>
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h4 class="mb-0">Sale Order #{{r[0]}}</h4>
+    <a href="/dashboard" class="btn btn-outline-secondary">Close</a>
+  </div>
   <p>Date: {{r[1]}}</p>
   <p>Customer: {{r[2]}}{% if r[3] %} ({{r[3]}}){% endif %}</p>
   <p>Item: {{r[4]}}</p>

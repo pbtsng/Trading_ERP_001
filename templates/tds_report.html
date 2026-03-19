@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>TDS Form &amp; Rules</h3>
+
+<form class="card p-3 mb-3" oninput="tdsCalc()">
+  <div class="row g-2">
+    <div class="col-12 col-md-3">
+      <label>Section</label>
+      <select id="tdsSection" class="form-select">
+        <option value="194Q">194Q – Purchase of Goods</option>
+        <option value="192B">192B – PF Withdrawal</option>
+        <option value="194H">194H – Commission/Brokerage</option>
+        <option value="194J">194J – Professional/Technical Fees</option>
+        <option value="194A">194A – Interest (other than securities)</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-3">
+      <label>Current Payment Amount (₹)</label>
+      <input id="tdsAmount" type="number" step="0.01" class="form-control">
+    </div>
+    <div class="col-12 col-md-3">
+      <label>Aggregate in FY incl. this (₹)</label>
+      <input id="tdsAggregate" type="number" step="0.01" class="form-control">
+    </div>
+    <div class="col-12 col-md-3 d-flex align-items-end justify-content-end">
+      <button type="button" class="btn btn-secondary me-2" onclick="window.print()">Print</button>
+    </div>
+  </div>
+
+  <div class="row g-2 mt-3" id="sec194Q">
+    <div class="col-12 col-md-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="qTurnover">
+        <label class="form-check-label" for="qTurnover">Buyer turnover &gt; ₹10 Cr (preceding FY)</label>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="qResident" checked>
+        <label class="form-check-label" for="qResident">Seller is resident</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-2 mt-3 d-none" id="sec192B">
+    <div class="col-12 col-md-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="bServiceShort">
+        <label class="form-check-label" for="bServiceShort">Service &lt; 5 years</label>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="bPan" checked>
+        <label class="form-check-label" for="bPan">PAN available</label>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="bForm15">
+        <label class="form-check-label" for="bForm15">Form 15G/15H valid</label>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <label>Slab TDS Rate % (if PAN)</label>
+      <input id="bSlabRate" type="number" step="0.1" value="10" class="form-control">
+    </div>
+  </div>
+
+  <div class="row g-2 mt-3 d-none" id="sec194H">
+    <div class="col-12 col-md-4">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="hPayerAudit">
+        <label class="form-check-label" for="hPayerAudit">Payer under tax audit</label>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="hResident" checked>
+        <label class="form-check-label" for="hResident">Payee resident</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-2 mt-3 d-none" id="sec194J">
+    <div class="col-12 col-md-4">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="jPayerAudit">
+        <label class="form-check-label" for="jPayerAudit">Payer under tax audit</label>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="jResident" checked>
+        <label class="form-check-label" for="jResident">Payee resident</label>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <label>Category</label>
+      <select id="jCategory" class="form-select">
+        <option value="PROF">Professional / Royalty (10%)</option>
+        <option value="TECH">Technical services only (2%)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-2 mt-3 d-none" id="sec194A">
+    <div class="col-12 col-md-4">
+      <label>Payer type</label>
+      <select id="aPayerType" class="form-select">
+        <option value="BANK">Bank / Post Office</option>
+        <option value="SENIOR">Senior citizen deposit</option>
+        <option value="OTHER">Other payer</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="aPan" checked>
+        <label class="form-check-label" for="aPan">PAN available</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-3 p-3 bg-light">
+    <div id="tdsResultMain" class="fw-bold">TDS Amount: ₹ 0.00</div>
+    <div id="tdsResultDetail" class="small text-muted mt-1"></div>
+  </div>
+</form>
+
+<div class="card p-3">
+  <h5 class="mb-3">TDS Rule Summary</h5>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th>Section</th>
+          <th>Nature of Payment</th>
+          <th>Payer Condition</th>
+          <th>Payee Condition</th>
+          <th>Threshold (₹)</th>
+          <th>TDS Rate</th>
+          <th>Time of Deduction</th>
+          <th>Special Rule Logic</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>194Q</td>
+          <td>Purchase of Goods</td>
+          <td>Buyer turnover &gt; ₹10 Cr (preceding FY)</td>
+          <td>Resident seller</td>
+          <td>50,00,000 aggregate per FY per seller</td>
+          <td>0.1% on amount exceeding 50L</td>
+          <td>Earlier of credit or payment</td>
+          <td>Not if other TDS/TCS applies (except 206C(1H))</td>
+        </tr>
+        <tr>
+          <td>192B</td>
+          <td>PF withdrawal (taxable portion)</td>
+          <td>EPFO / Employer</td>
+          <td>Employee</td>
+          <td>50,000 if service &lt; 5 years</td>
+          <td>Slab rate if PAN, 20% if no PAN</td>
+          <td>At time of payment</td>
+          <td>No TDS if Form 15G/15H valid</td>
+        </tr>
+        <tr>
+          <td>194H</td>
+          <td>Commission / Brokerage</td>
+          <td>Any person under tax audit</td>
+          <td>Resident payee</td>
+          <td>15,000 per FY</td>
+          <td>5%</td>
+          <td>Earlier of credit or payment</td>
+          <td>Not on securities transactions</td>
+        </tr>
+        <tr>
+          <td>194J</td>
+          <td>Professional / Technical Fees</td>
+          <td>Any person under tax audit</td>
+          <td>Resident payee</td>
+          <td>50,000 per FY per category</td>
+          <td>10% (professional/royalty), 2% (technical only)</td>
+          <td>Earlier of credit or payment</td>
+          <td>10% for royalty (non-film)</td>
+        </tr>
+        <tr>
+          <td>194A</td>
+          <td>Interest (other than securities)</td>
+          <td>Any person under tax audit</td>
+          <td>Resident</td>
+          <td>40,000 bank/PO, 50,000 senior, 5,000 others</td>
+          <td>10%</td>
+          <td>Earlier of credit or payment</td>
+          <td>No TDS on savings bank interest</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function tdsVisible() {
+  var s = document.getElementById("tdsSection").value;
+  document.getElementById("sec194Q").classList.add("d-none");
+  document.getElementById("sec192B").classList.add("d-none");
+  document.getElementById("sec194H").classList.add("d-none");
+  document.getElementById("sec194J").classList.add("d-none");
+  document.getElementById("sec194A").classList.add("d-none");
+  if (s === "194Q") document.getElementById("sec194Q").classList.remove("d-none");
+  if (s === "192B") document.getElementById("sec192B").classList.remove("d-none");
+  if (s === "194H") document.getElementById("sec194H").classList.remove("d-none");
+  if (s === "194J") document.getElementById("sec194J").classList.remove("d-none");
+  if (s === "194A") document.getElementById("sec194A").classList.remove("d-none");
+}
+function tdsCalc() {
+  var s = document.getElementById("tdsSection").value;
+  var amt = parseFloat(document.getElementById("tdsAmount").value || "0");
+  var agg = parseFloat(document.getElementById("tdsAggregate").value || "0");
+  if (!agg && amt) agg = amt;
+  var tds = 0;
+  var rate = 0;
+  var detail = "";
+  if (s === "194Q") {
+    var turn = document.getElementById("qTurnover").checked;
+    var res = document.getElementById("qResident").checked;
+    var thr = 5000000;
+    if (turn && res) {
+      var taxable = Math.max(0, agg - thr);
+      rate = 0.1;
+      tds = taxable * rate / 100;
+      detail = "Taxable above 50L: ₹ " + taxable.toFixed(2) + " at 0.1%";
+    } else {
+      detail = "Conditions for 194Q not satisfied.";
+    }
+  } else if (s === "192B") {
+    var short = document.getElementById("bServiceShort").checked;
+    var pan = document.getElementById("bPan").checked;
+    var f15 = document.getElementById("bForm15").checked;
+    var slab = parseFloat(document.getElementById("bSlabRate").value || "0");
+    var thrb = 50000;
+    if (!short || f15) {
+      detail = "No TDS if service ≥5 years or valid Form 15G/15H.";
+    } else if (amt <= thrb) {
+      detail = "Amount does not exceed ₹ 50,000 threshold.";
+    } else {
+      if (pan) {
+        rate = slab;
+      } else {
+        rate = 20;
+      }
+      tds = amt * rate / 100;
+      detail = "Taxable PF: ₹ " + amt.toFixed(2) + " at " + rate.toFixed(2) + "%";
+    }
+  } else if (s === "194H") {
+    var ha = document.getElementById("hPayerAudit").checked;
+    var hr = document.getElementById("hResident").checked;
+    var thrh = 15000;
+    if (ha && hr) {
+      var taxableh = Math.max(0, agg - thrh);
+      rate = 5;
+      tds = taxableh * rate / 100;
+      detail = "Commission above ₹ 15,000: ₹ " + taxableh.toFixed(2) + " at 5%";
+    } else {
+      detail = "Conditions for 194H not satisfied.";
+    }
+  } else if (s === "194J") {
+    var ja = document.getElementById("jPayerAudit").checked;
+    var jr = document.getElementById("jResident").checked;
+    var cat = document.getElementById("jCategory").value;
+    var thrj = 50000;
+    if (ja && jr) {
+      var taxablej = Math.max(0, agg - thrj);
+      if (cat === "TECH") rate = 2; else rate = 10;
+      tds = taxablej * rate / 100;
+      detail = "Fees above ₹ 50,000: ₹ " + taxablej.toFixed(2) + " at " + rate.toFixed(2) + "%";
+    } else {
+      detail = "Conditions for 194J not satisfied.";
+    }
+  } else if (s === "194A") {
+    var type = document.getElementById("aPayerType").value;
+    var apan = document.getElementById("aPan").checked;
+    var thra = 5000;
+    if (type === "BANK") thra = 40000;
+    if (type === "SENIOR") thra = 50000;
+    if (agg <= thra) {
+      detail = "Interest does not exceed threshold for 194A.";
+    } else {
+      rate = apan ? 10 : 20;
+      var taxablea = Math.max(0, agg - thra);
+      tds = taxablea * rate / 100;
+      detail = "Interest above threshold: ₹ " + taxablea.toFixed(2) + " at " + rate.toFixed(2) + "%";
+    }
+  }
+  var main = document.getElementById("tdsResultMain");
+  var det = document.getElementById("tdsResultDetail");
+  main.textContent = "TDS Amount: ₹ " + tds.toFixed(2);
+  det.textContent = detail;
+}
+document.addEventListener("DOMContentLoaded", function() {
+  tdsVisible();
+  tdsCalc();
+  document.getElementById("tdsSection").addEventListener("change", function() {
+    tdsVisible();
+    tdsCalc();
+  });
+});
+</script>
+
+{% endblock %}
+

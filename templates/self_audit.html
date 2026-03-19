@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Self Audit</h3>
+
+<div class="card p-3 mb-3">
+  <p class="mb-1">
+    This page runs basic self checks to highlight missing information and potential issues.
+  </p>
+  <p class="mb-0">
+    It does not replace professional audit or statutory advice, but helps you spot common gaps.
+  </p>
+</div>
+
+{% if not issues %}
+<div class="alert alert-success">
+  No issues found in the current self audit checks.
+  Keep your masters and vouchers updated for better compliance.
+  </div>
+{% else %}
+<div class="alert alert-info">
+  {{ issues|length }} issue type{{ 's' if issues|length>1 else '' }} detected. Review details below.
+</div>
+
+<div class="accordion" id="auditAccordion">
+  {% for i in issues %}
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="heading{{ loop.index }}">
+      <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}">
+        <span class="badge me-2 {% if i.severity=='ERROR' %}bg-danger{% elif i.severity=='WARNING' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+          {{ i.severity }}
+        </span>
+        <span class="me-2">{{ i.category }}</span>
+        <span class="text-muted">{{ i.message }}</span>
+        <span class="ms-auto text-muted small">Count: {{ i.count }}</span>
+      </button>
+    </h2>
+    <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" data-bs-parent="#auditAccordion">
+      <div class="accordion-body">
+        <div class="mb-2">
+          <span class="badge bg-light text-dark">Code: {{ i.code }}</span>
+        </div>
+        <p class="mb-2">Examples (up to 5):</p>
+        <ul class="mb-0">
+          {% for ex in i.examples %}
+          <li>{{ ex }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
+

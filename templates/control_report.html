@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h3>📊 Trading Control Report</h3>
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h3 class="mb-0">📊 Trading Control Report</h3>
+  <a href="/cust_purch_report" class="btn btn-primary btn-sm">Customer / Purchase Report</a>
+</div>
 
 <div class="row text-center">
 
@@ -37,7 +40,9 @@
 
 <hr>
 
-<table class="table table-bordered table-light">
+<div class="row">
+  <div class="col-md-8">
+    <table class="table table-bordered table-light">
 
 <tr class="table-secondary">
 <th>Item</th>
@@ -61,6 +66,36 @@
 </tr>
 {% endfor %}
 
-</table>
+    </table>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3">
+      <h6 class="mb-2">📲 Recent WhatsApp Messages</h6>
+      {% if recent_notifications %}
+      <div style="max-height:260px;overflow:auto;">
+        <table class="table table-sm table-bordered mb-0">
+          <tr>
+            <th>When</th>
+            <th>Type</th>
+            <th>Party</th>
+            <th>Status</th>
+          </tr>
+          {% for n in recent_notifications %}
+          <tr>
+            <td>{{ n[1] }}</td>
+            <td>{{ n[2] }}</td>
+            <td>{{ n[4] }}</td>
+            <td>{{ n[6] }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <a href="/notifications" class="btn btn-outline-primary btn-sm mt-2 w-100">View all</a>
+      {% else %}
+      <div class="text-muted">No WhatsApp messages tracked yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 
 {% endblock %}

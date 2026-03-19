@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-heading">
+  <h3>🤖 AI Settings</h3>
+</div>
+
+<form method="post" class="card p-3 col-md-6">
+  <div class="mb-3">
+    <label class="form-label">Default AI Provider</label>
+    <select name="default_provider" class="form-select">
+      <option value="auto" {% if default_provider=='auto' %}selected{% endif %}>Auto (prefer OpenAI, else Gemini)
+      </option>
+      <option value="openai" {% if default_provider=='openai' %}selected{% endif %}>OpenAI</option>
+      <option value="gemini" {% if default_provider=='gemini' %}selected{% endif %}>Gemini</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Gemini API Key</label>
+    <input type="password" name="gemini_key" class="form-control"
+      placeholder="Paste Gemini API key (leave blank to keep existing)">
+  </div>
+
+  <div class="mb-3 small text-muted">
+    <div>OpenAI available: {{ 'Yes' if openai_available else 'No' }}</div>
+    <div>Gemini available: {{ 'Yes' if gemini_available else 'No' }}</div>
+  </div>
+
+  <button class="btn btn-primary">Save Settings</button>
+</form>
+
+{% endblock %}

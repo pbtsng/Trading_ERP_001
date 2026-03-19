@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="min-height:70vh;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="width:100%;max-width:380px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div
+        style="display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:14px;margin-bottom:12px">
+        <span style="font-size:24px">🔐</span>
+      </div>
+      <h2 style="font-size:20px;font-weight:700;color:var(--text);margin:0 0 4px">Two-Factor Auth</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin:0">Enter the verification code to continue</p>
+    </div>
+    <form method="post"
+      style="background:rgba(30,41,59,0.8);border:1px solid var(--border);border-radius:16px;padding:28px;backdrop-filter:blur(12px)">
+      <div
+        style="margin-bottom:14px;padding:10px 14px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;font-size:12px;color:var(--amber)">
+        Your code: <strong>{{ session.otp_code }}</strong>
+      </div>
+      {% if wa_link %}
+      <a href="{{ wa_link }}" target="_blank" class="btn btn-success mb-3" style="width:100%;justify-content:center">📲
+        Send via WhatsApp</a>
+      {% endif %}
+      <div style="margin-bottom:18px">
+        <label
+          style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em">Verification
+          Code</label>
+        <input name="code" class="form-control" autocomplete="one-time-code" placeholder="Enter code" autofocus
+          style="text-align:center;font-size:18px;font-weight:700;letter-spacing:6px">
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:14px;padding:11px 18px">Verify
+        →</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

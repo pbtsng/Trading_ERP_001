@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>GST Report</h3>
+
+<form method="get" class="card p-3 mb-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-12 col-md-3">
+      <label>From</label>
+      <input type="date" name="from" value="{{ from_date }}" class="form-control">
+    </div>
+    <div class="col-12 col-md-3">
+      <label>To</label>
+      <input type="date" name="to" value="{{ to_date }}" class="form-control">
+    </div>
+    <div class="col-12 col-md-3">
+      <button class="btn btn-primary">Show</button>
+    </div>
+    <div class="col-12 col-md-3 text-end">
+      <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
+    </div>
+  </div>
+</form>
+
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card p-3">
+      <h5>Outward GST (Sales Invoices)</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th>Invoice#</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>State</th>
+              <th class="text-end">Taxable Value</th>
+              <th class="text-end">IGST</th>
+              <th class="text-end">CGST</th>
+              <th class="text-end">SGST</th>
+              <th class="text-end">Total GST</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in sales_rows %}
+            <tr>
+              <td>{{ r.inv_id }}</td>
+              <td>{{ r.inv_date }}</td>
+              <td>{{ r.customer }}</td>
+              <td>{{ r.state }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.value or 0) }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.igst or 0) }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.cgst or 0) }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.sgst or 0) }}</td>
+              <td class="text-end">{{ '%.2f'|format((r.igst or 0) + (r.cgst or 0) + (r.sgst or 0)) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="4" class="text-end">Totals</th>
+              <th class="text-end">{{ '%.2f'|format(out_total_value or 0) }}</th>
+              <th class="text-end">{{ '%.2f'|format(out_total_igst or 0) }}</th>
+              <th class="text-end">{{ '%.2f'|format(out_total_cgst or 0) }}</th>
+              <th class="text-end">{{ '%.2f'|format(out_total_sgst or 0) }}</th>
+              <th class="text-end">{{ '%.2f'|format(out_total_gst or 0) }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-3">
+  <div class="col-12">
+    <div class="card p-3">
+      <h5>Inward GST (Purchase Orders)</h5>
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered">
+          <thead>
+            <tr>
+              <th>PO#</th>
+              <th>Date</th>
+              <th>Supplier</th>
+              <th>State</th>
+              <th>Item</th>
+              <th class="text-end">Taxable Value</th>
+              <th class="text-end">IGST</th>
+              <th class="text-end">CGST</th>
+              <th class="text-end">SGST</th>
+              <th class="text-end">Total GST</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in purchase_rows %}
+            <tr>
+              <td>{{ r.po_id }}</td>
+              <td>{{ r.po_date }}</td>
+              <td>{{ r.supplier }}</td>
+              <td>{{ r.state }}</td>
+              <td>{{ r.item }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.value or 0) }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.igst or 0) }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.cgst or 0) }}</td>
+              <td class="text-end">{{ '%.2f'|format(r.sgst or 0) }}</td>
+              <td class="text-end">{{ '%.2f'|format((r.igst or 0) + (r.cgst or 0) + (r.sgst or 0)) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="5" class="text-end">Totals</th>
+              <th class="text-end">{{ '%.2f'|format(in_total_value or 0) }}</th>
+              <th class="text-end">{{ '%.2f'|format(in_total_igst or 0) }}</th>
+              <th class="text-end">{{ '%.2f'|format(in_total_cgst or 0) }}</th>
+              <th class="text-end">{{ '%.2f'|format(in_total_sgst or 0) }}</th>
+              <th class="text-end">{{ '%.2f'|format(in_total_gst or 0) }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card p-3 mt-3">
+  <div class="d-flex justify-content-between">
+    <div class="fw-bold">Net GST Payable (Outward - Inward)</div>
+    <div class="fw-bold">{{ '%.2f'|format(net_gst_payable or 0) }}</div>
+  </div>
+</div>
+
+{% endblock %}

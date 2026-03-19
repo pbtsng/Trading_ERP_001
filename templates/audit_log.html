@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Audit Log</h3>
+
+<form method="get" class="card p-3 mb-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-12 col-md-4">
+      <label>User</label>
+      <select name="user" class="form-control">
+        <option value="">[All]</option>
+        {% for u in users %}
+        <option value="{{u}}" {% if user_filter==u %}selected{% endif %}>{{u}}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-4">
+      <label>Table</label>
+      <select name="table" class="form-control">
+        <option value="">[All]</option>
+        {% for t in tables %}
+        <option value="{{t}}" {% if table_filter==t %}selected{% endif %}>{{t}}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-4">
+      <button class="btn btn-primary">Filter</button>
+    </div>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-sm table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Time</th>
+        <th>User</th>
+        <th>Table</th>
+        <th>Action</th>
+        <th>PK</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{r[0]}}</td>
+        <td>{{r[1]}}</td>
+        <td>{{r[2]}}</td>
+        <td>{{r[3]}}</td>
+        <td>{{r[4]}}</td>
+        <td>{{r[5]}}</td>
+        <td>{{r[6]}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+

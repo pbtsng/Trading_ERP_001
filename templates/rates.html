@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-heading">
+  <h3>🏷️ Daily Rates</h3>
+</div>
+
+<form method="post" class="card p-3 mb-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-12 col-md-3">
+      <label class="form-label">Date</label>
+      <input type="date" name="date" value="{{ today }}" class="form-control">
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label">Item</label>
+      <select name="item_id" class="form-select" required>
+        <option value="">Select item</option>
+        {% for i in items %}
+        <option value="{{ i[0] }}">{{ i[1] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="form-label">Sale Rate</label>
+      <input name="sale_rate" class="form-control" placeholder="Sale">
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="form-label">Purchase Rate</label>
+      <input name="purchase_rate" class="form-control" placeholder="Purchase">
+    </div>
+    <div class="col-12 col-md-1">
+      <button class="btn btn-success w-100">Save</button>
+    </div>
+  </div>
+</form>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Today's Rates ({{ today }})</span>
+    <small style="color:var(--text-muted);font-size:11px">
+      Public link:
+      <code>{{ url_for('public_rates', _external=True) }}</code>
+    </small>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered mb-0">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="text-end">Sale Rate</th>
+            <th class="text-end">Purchase Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td>{{ r[1] }}</td>
+            <td class="text-end">
+              {% if r[2] is not none %}{{ '%.2f'|format(r[2]) }}{% endif %}
+            </td>
+            <td class="text-end">
+              {% if r[3] is not none %}{{ '%.2f'|format(r[3]) }}{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not rows %}
+          <tr>
+            <td colspan="3" class="text-center text-muted">No rates defined for today.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% endblock %}

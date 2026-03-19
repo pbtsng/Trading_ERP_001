@@ -1,7 +1,10 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<title>Trading ERP</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coffers ERP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="/static/css/style.css" rel="stylesheet">
 <link rel="manifest" href="/static/manifest.json">
@@ -12,41 +15,78 @@
 {% if logged_in %}
   <div class="layout">
     <aside class="sidebar">
-      <div class="brand">ERP</div>
+      <div class="brand">⚙ COFFERS</div>
       <nav class="menu">
         {% set path = request.path if request else '' %}
         <a href="/dashboard" class="menu-item {% if path.startswith('/dashboard') %}active{% endif %}" title="Dashboard"><span class="icon">🏠</span><span class="label">Dashboard</span></a>
         <div class="menu-group">
-          <button class="menu-title collapsible" data-target="group-sales">Sales</button>
+          <button class="menu-title collapsible" data-target="group-sales">
+            <span class="icon">💼</span><span class="label">Sales</span>
+          </button>
           <div class="submenu" id="group-sales">
             <a href="/sale" class="menu-item sub {% if path.startswith('/sale') %}active{% endif %}" title="Sale Order"><span class="icon">🧾</span><span class="label">Sale Order</span></a>
             <a href="/sale_invoice" class="menu-item sub {% if path.startswith('/sale_invoice') %}active{% endif %}" title="Sale Invoice"><span class="icon">🧮</span><span class="label">Sale Invoice</span></a>
           </div>
         </div>
         <div class="menu-group">
-          <button class="menu-title collapsible" data-target="group-purchase">Purchase</button>
+          <button class="menu-title collapsible" data-target="group-purchase">
+            <span class="icon">🛒</span><span class="label">Purchase</span>
+          </button>
           <div class="submenu" id="group-purchase">
             <a href="/purchase" class="menu-item sub {% if path.startswith('/purchase') %}active{% endif %}" title="Purchase Order"><span class="icon">🛒</span><span class="label">Purchase Order</span></a>
             <a href="/loading_advice" class="menu-item sub {% if path.startswith('/loading_advice') %}active{% endif %}" title="Loading Advice"><span class="icon">📦</span><span class="label">Loading Advice</span></a>
           </div>
         </div>
         <div class="menu-group">
-          <button class="menu-title collapsible" data-target="group-inventory">Inventory</button>
+          <button class="menu-title collapsible" data-target="group-inventory">
+            <span class="icon">📦</span><span class="label">Inventory</span>
+          </button>
           <div class="submenu" id="group-inventory">
-            <a href="#" class="menu-item sub" title="Stock"><span class="icon">📊</span><span class="label">Stock</span></a>
-            <a href="#" class="menu-item sub" title="Godown"><span class="icon">🏢</span><span class="label">Godown</span></a>
+            <a href="/item_ledger" class="menu-item sub {% if path.startswith('/item_ledger') %}active{% endif %}" title="Item Ledger"><span class="icon">📊</span><span class="label">Item Ledger</span></a>
+            <a href="/purchase_pipeline" class="menu-item sub {% if path.startswith('/purchase_pipeline') %}active{% endif %}" title="Purchase Pipeline"><span class="icon">📦</span><span class="label">Purchase Pipeline</span></a>
           </div>
         </div>
         <div class="menu-group">
-          <button class="menu-title collapsible" data-target="group-accounts">Accounts</button>
+          <button class="menu-title collapsible" data-target="group-accounts">
+            <span class="icon">💹</span><span class="label">Accounts</span>
+          </button>
           <div class="submenu" id="group-accounts">
-            <a href="#" class="menu-item sub" title="Ledger"><span class="icon">📒</span><span class="label">Ledger</span></a>
-            <a href="#" class="menu-item sub" title="Trial Balance"><span class="icon">⚖️</span><span class="label">Trial Balance</span></a>
+            <a href="/receipt" class="menu-item sub {% if path.startswith('/receipt') %}active{% endif %}" title="Receipt Entry"><span class="icon">🧾</span><span class="label">Receipt Entry</span></a>
+            <a href="/payment" class="menu-item sub {% if path.startswith('/payment') %}active{% endif %}" title="Payment Entry"><span class="icon">💳</span><span class="label">Payment Entry</span></a>
+            <a href="/journal" class="menu-item sub {% if path.startswith('/journal') %}active{% endif %}" title="Journal Entry"><span class="icon">📝</span><span class="label">Journal Entry</span></a>
+            <a href="/credit_note" class="menu-item sub {% if path.startswith('/credit_note') %}active{% endif %}" title="Credit Note"><span class="icon">📉</span><span class="label">Credit Note</span></a>
+            <a href="/debit_note" class="menu-item sub {% if path.startswith('/debit_note') %}active{% endif %}" title="Debit Note"><span class="icon">📈</span><span class="label">Debit Note</span></a>
+            <a href="/trial_balance" class="menu-item sub {% if path.startswith('/trial_balance') %}active{% endif %}" title="Trial Balance"><span class="icon">⚖️</span><span class="label">Trial Balance</span></a>
+            <a href="/pl" class="menu-item sub {% if path.startswith('/pl') %}active{% endif %}" title="P&L"><span class="icon">📈</span><span class="label">P&L</span></a>
+            <a href="/balance_sheet" class="menu-item sub {% if path.startswith('/balance_sheet') %}active{% endif %}" title="Balance Sheet"><span class="icon">📋</span><span class="label">Balance Sheet</span></a>
+            <a href="/gst_report" class="menu-item sub {% if path.startswith('/gst_report') %}active{% endif %}" title="GST Report"><span class="icon">🧾</span><span class="label">GST Report</span></a>
+            <a href="/cust_purch_report" class="menu-item sub {% if path.startswith('/cust_purch_report') %}active{% endif %}" title="Customer/Supplier Report"><span class="icon">📄</span><span class="label">Cust/Purch Report</span></a>
+            <a href="/export_purchase_movement" class="menu-item sub {% if path.startswith('/export_purchase_movement') %}active{% endif %}" title="Purchase Movement Excel"><span class="icon">📊</span><span class="label">PO Movement Excel</span></a>
+            <a href="/export_sale_movement" class="menu-item sub {% if path.startswith('/export_sale_movement') %}active{% endif %}" title="Sale Movement Excel"><span class="icon">📊</span><span class="label">SO Movement Excel</span></a>
+            <a href="/export_order_balance" class="menu-item sub {% if path.startswith('/export_order_balance') %}active{% endif %}" title="Sales & Purchase Order Balance Sheet"><span class="icon">📊</span><span class="label">SO/PO Balance Sheet</span></a>
+            <a href="/order_timeline" class="menu-item sub {% if path.startswith('/order_timeline') %}active{% endif %}" title="Order Timeline"><span class="icon">📊</span><span class="label">Order Timeline</span></a>
+            <a href="/order_balance_sheet" class="menu-item sub {% if path.startswith('/order_balance_sheet') %}active{% endif %}" title="Order Balance Sheet"><span class="icon">📈</span><span class="label">Order Balance Sheet</span></a>
+            <a href="/tds_report" class="menu-item sub {% if path.startswith('/tds_report') %}active{% endif %}" title="TDS Report"><span class="icon">📑</span><span class="label">TDS Report</span></a>
+            <a href="/audit_log" class="menu-item sub {% if path.startswith('/audit_log') %}active{% endif %}" title="Audit Log"><span class="icon">🔍</span><span class="label">Audit Log</span></a>
+          </div>
+        </div>
+        <div class="menu-group">
+          <button class="menu-title collapsible" data-target="group-admin">
+            <span class="icon">⚙️</span><span class="label">Admin</span>
+          </button>
+          <div class="submenu" id="group-admin">
+            <a href="/accounts" class="menu-item sub {% if path.startswith('/accounts') %}active{% endif %}" title="Account Master"><span class="icon">📒</span><span class="label">Account Master</span></a>
+            <a href="/chart_of_accounts" class="menu-item sub {% if path.startswith('/chart_of_accounts') %}active{% endif %}" title="Chart of Accounts"><span class="icon">📚</span><span class="label">Chart of Accounts</span></a>
+            <a href="/rates" class="menu-item sub {% if path.startswith('/rates') %}active{% endif %}" title="Daily Rates"><span class="icon">🏷️</span><span class="label">Daily Rates</span></a>
+            <a href="/company_master" class="menu-item sub {% if path.startswith('/company_master') %}active{% endif %}" title="Company Master"><span class="icon">🏢</span><span class="label">Company Master</span></a>
+            <a href="/company_context" class="menu-item sub {% if path.startswith('/company_context') %}active{% endif %}" title="Company / Year"><span class="icon">📆</span><span class="label">Company / Year</span></a>
+            <a href="/self_audit" class="menu-item sub {% if path.startswith('/self_audit') %}active{% endif %}" title="Self Audit"><span class="icon">✅</span><span class="label">Self Audit</span></a>
+            <a href="/ai_settings" class="menu-item sub {% if path.startswith('/ai_settings') %}active{% endif %}" title="AI Settings"><span class="icon">🤖</span><span class="label">AI Settings</span></a>
+            <a href="/user_settings" class="menu-item sub {% if path.startswith('/user_settings') %}active{% endif %}" title="User Settings"><span class="icon">⚙️</span><span class="label">Settings</span></a>
           </div>
         </div>
         <a href="/control_report" class="menu-item {% if path.startswith('/control_report') %}active{% endif %}" title="Reports"><span class="icon">📈</span><span class="label">Reports</span></a>
         <a href="/ai" class="menu-item {% if path.startswith('/ai') %}active{% endif %}" title="AI Assistant"><span class="icon">🤖</span><span class="label">AI Assistant</span></a>
-        <a href="#" class="menu-item" title="Settings"><span class="icon">⚙️</span><span class="label">Settings</span></a>
       </nav>
     </aside>
     <main class="main">
@@ -56,18 +96,22 @@
           <button class="icon-btn" id="collapseBtn" title="Collapse Sidebar">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18M3 12h18M3 20h18"/></svg>
           </button>
-          <div class="brand">ERP</div>
+          <div class="brand" style="font-size:15px">⚙ COFFERS</div>
         </div>
         <div class="top-center">
-          <div class="search-wrap">
-            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input class="search" placeholder="Search…">
+          <div style="font-size:11px;color:#f59e0b;font-weight:600;letter-spacing:0.04em;margin-bottom:3px">
+            {{ session.company_name or 'Company not set' }}
+            {% if session.fy_name %}<span style="color:#64748b;font-weight:400"> &mdash; {{ session.fy_name }}</span>{% endif %}
           </div>
+          <form class="search-wrap" method="get" action="/search">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input class="search" name="q" placeholder="Search forms, reports, pages…" value="{{ request.args.get('q','') if request else '' }}">
+          </form>
         </div>
         <div class="top-right">
-          <button class="icon-btn" id="notifBtn">
+          <a href="/notifications" class="icon-btn" id="notifBtn" title="Notifications">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0v5l2 2H4l2-2Z"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          </button>
+          </a>
           <button class="icon-btn" id="rightToggle" title="AI Pane">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18M3 12h18M3 19h18"/></svg>
           </button>
@@ -83,19 +127,32 @@
               <a href="/ai" class="dropdown-item">AI Assistant</a>
             </div>
           </div>
-          <select id="themeSelect" class="form-select form-select-sm" style="max-width:130px">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
+          <select id="densitySelect" class="form-select form-select-sm" style="max-width:120px">
+            <option value="compact" {% if session.default_density=='compact' %}selected{% endif %}>Compact</option>
+            <option value="comfortable" {% if session.default_density=='comfortable' %}selected{% endif %}>Comfortable</option>
           </select>
           <div class="user">
             <span class="user-name">{{session.user or ''}}</span>
             <span class="user-role">{{session.role or ''}}</span>
+            <a href="/logout" class="btn btn-sm btn-outline-light ms-2">Logout</a>
           </div>
         </div>
       </header>
       <section class="content">
         <div id="tabsBar" class="tabs"></div>
 {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="container mt-2">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'success' if category=='success' else 'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% endwith %}
         {% block content %}{% endblock %}
 {% if logged_in %}
       </section>

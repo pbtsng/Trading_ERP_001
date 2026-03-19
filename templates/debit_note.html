@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-heading">
+  <h3>📈 Debit Note (against Purchase Order)</h3>
+</div>
+
+<form method="post" class="card p-3 mb-3">
+  <div class="row g-2">
+    <div class="col-12 col-md-3">
+      <label class="form-label">Date</label>
+      <input type="date" name="date" value="{{ today }}" class="form-control">
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label">Purchase Order</label>
+      <select name="po_id" class="form-control">
+        <option value="">[Select PO]</option>
+        {% for p in purchase_orders %}
+        <option value="{{ p[0] }}">PO{{ p[0] }} | {{ p[1] }} | {{ p[2] }} | {{ '%.2f'|format(p[3]) }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label">Supplier</label>
+      <input name="supplier" value="{{ supplier or '' }}" class="form-control" readonly>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label">Amount</label>
+      <input name="amount" class="form-control" required>
+    </div>
+    <div class="col-12">
+      <label class="form-label">Reason</label>
+      <input name="reason" class="form-control">
+    </div>
+  </div>
+  <div class="mt-3">
+    <button class="btn btn-success">Save Debit Note</button>
+  </div>
+  <div class="mt-2 text-muted small">
+    This will create a DEBIT NOTE entry against the selected purchase order.
+  </div>
+</form>
+
+<div class="page-heading" style="margin-top:20px">
+  <h4>Recent Debit Notes</h4>
+</div>
+<div class="table-responsive">
+  <table class="table table-sm table-bordered">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Date</th>
+        <th>Purchase Order</th>
+        <th>Supplier</th>
+        <th>Amount</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r[0] }}</td>
+        <td>{{ r[1] }}</td>
+        <td>PO{{ r[2] }}</td>
+        <td>{{ r[3] }}</td>
+        <td>{{ '%.2f'|format(r[4] or 0) }}</td>
+        <td>{{ r[5] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

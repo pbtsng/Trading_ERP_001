@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-heading">
+  <h3>🏢 Company Master</h3>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <div class="card p-3">
+      <h5 class="mb-2">Companies</h5>
+      <div class="list-group">
+        {% for c in companies %}
+        <a href="/company_master?company_id={{ c.company_id }}"
+          class="list-group-item list-group-item-action {% if c.company_id==current_company_id %}active{% endif %}">
+          {{ c.company_name }}
+        </a>
+        {% endfor %}
+        {% if not companies %}
+        <div class="list-group-item text-muted">No companies defined yet.</div>
+        {% endif %}
+      </div>
+      <form method="post" class="mt-3">
+        <input type="hidden" name="action" value="new_company">
+        <button class="btn btn-sm btn-primary w-100">Add New Company</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-8">
+    <div class="card mb-3">
+      <div class="card-header">Company Details</div>
+      <div class="card-body">
+        <form method="post" style="border:none;background:none;padding:0">
+          <input type="hidden" name="action" value="save_company">
+          <input type="hidden" name="company_id" value="{{ company.company_id or '' }}">
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Company Name</label>
+              <input name="company_name" class="form-control" value="{{ company.company_name or '' }}" required>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Short Name</label>
+              <input name="short_name" class="form-control" value="{{ company.short_name or '' }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Group Name</label>
+              <input name="group_name" class="form-control" value="{{ company.group_name or '' }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">GSTIN</label>
+              <input name="gstin" class="form-control" value="{{ company.gstin or '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Address</label>
+              <input name="address" class="form-control" value="{{ company.address or '' }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">City</label>
+              <input name="city" class="form-control" value="{{ company.city or '' }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">State</label>
+              <input name="state" class="form-control" value="{{ company.state or '' }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Company Logo Path/URL</label>
+              <input name="company_logo" class="form-control" value="{{ company.company_logo or '' }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Software Logo Path/URL</label>
+              <input name="app_logo" class="form-control" value="{{ company.app_logo or '' }}">
+            </div>
+          </div>
+          <div class="mt-3">
+            <button class="btn btn-success">Save Company</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card p-3">
+        <h5 class="mb-2">Accounting Years</h5>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for fy in years %}
+              <tr>
+                <td>{{ fy.fy_name }}</td>
+                <td>{{ fy.start_date }}</td>
+                <td>{{ fy.end_date }}</td>
+              </tr>
+              {% endfor %}
+              {% if not years %}
+              <tr>
+                <td colspan="3" class="text-muted text-center">No years defined.</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <form method="post" class="row g-2 mt-2">
+          <input type="hidden" name="action" value="add_year">
+          <input type="hidden" name="company_id" value="{{ company.company_id or '' }}">
+          <div class="col-12 col-md-4">
+            <label>Year Name</label>
+            <input name="fy_name" class="form-control" placeholder="2024-25" required>
+          </div>
+          <div class="col-12 col-md-4">
+            <label>Start Date</label>
+            <input type="date" name="start_date" class="form-control" required>
+          </div>
+          <div class="col-12 col-md-4">
+            <label>End Date</label>
+            <input type="date" name="end_date" class="form-control" required>
+          </div>
+          <div class="col-12 mt-2">
+            <button class="btn btn-primary">Add Year</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% endblock %}

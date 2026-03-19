@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   const aiAnswer = document.getElementById("aiAnswer");
   const aiSql = document.getElementById("aiSql");
   const themeSelect = document.getElementById("themeSelect");
+  const densitySelect = document.getElementById("densitySelect");
   function toggle(){
     document.body.classList.toggle("sidebar-open");
   }
@@ -96,15 +97,21 @@ document.addEventListener("DOMContentLoaded",()=>{
       const link = document.createElement("a");
       link.href = t.path;
       link.textContent = t.label;
-      link.style.color = "#1c1c1e";
       const close = document.createElement("button");
       close.className = "close";
       close.textContent = "×";
       close.addEventListener("click",(e)=>{
         e.preventDefault();
         const arr = JSON.parse(localStorage.getItem("erpTabs")||"[]");
-        arr.splice(idx,1);
+        const currentPath = window.location.pathname;
+        const removed = arr.splice(idx,1);
         localStorage.setItem("erpTabs",JSON.stringify(arr));
+        // If the closed tab is the current view, navigate to a neighbor or dashboard
+        if(removed.length && removed[0].path === currentPath){
+          const target = arr[idx-1]?.path || arr[idx]?.path || "/dashboard";
+          window.location.href = target;
+          return;
+        }
         renderTabs();
       });
       el.appendChild(link);
@@ -163,11 +170,26 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(themeSelect){ themeSelect.value = name; }
     document.dispatchEvent(new CustomEvent("themechange",{detail:{theme:name}}));
   }
-  const savedTheme = localStorage.getItem("erpTheme") || "light";
+  const serverTheme = themeSelect ? themeSelect.value : null;
+  const savedTheme = localStorage.getItem("erpTheme") || serverTheme || "light";
   applyTheme(savedTheme);
   if(themeSelect){
     themeSelect.addEventListener("change",()=>{
       applyTheme(themeSelect.value);
     });
   }
+  function applyDensity(mode){
+    document.documentElement.setAttribute("data-density", mode);
+    localStorage.setItem("erpDensity", mode);
+    if(densitySelect){ densitySelect.value = mode; }
+  }
+  const serverDensity = densitySelect ? densitySelect.value : null;
+  const savedDensity = localStorage.getItem("erpDensity") || serverDensity || "compact";
+  applyDensity(savedDensity);
+  if(densitySelect){
+    densitySelect.addEventListener("change",()=>{
+      applyDensity(densitySelect.value);
+    });
+  }
+  
 });

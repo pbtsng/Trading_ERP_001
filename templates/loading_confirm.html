@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-3">Loading Confirmation – LA# {{ head["la_id"] }}</h3>
+
+<div class="card mb-3 p-3">
+  <div class="row g-2">
+    <div class="col-12 col-md-3">
+      <label>Date</label>
+      <input name="la_date" class="form-control" value="{{ head['la_date'] }}" readonly>
+    </div>
+    <div class="col-12 col-md-3">
+      <label>Vehicle</label>
+      <input name="vehicle_no" class="form-control" value="{{ head['vehicle_no'] }}">
+    </div>
+    <div class="col-12 col-md-3">
+      <label>Customer</label>
+      <input class="form-control" value="{{ customer_name }}" readonly>
+    </div>
+    <div class="col-12 col-md-3">
+      <label>Supplier</label>
+      <input class="form-control" value="{{ supplier_name }}" readonly>
+    </div>
+  </div>
+</div>
+
+<form method="post" id="confirmForm">
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm align-middle" id="confirmTable">
+      <thead class="table-light">
+        <tr>
+          <th>Item</th>
+          <th>Customer SO</th>
+          <th>Supplier PO</th>
+          <th>Section</th>
+          <th>Qty (MT)</th>
+          <th>Buyer Base Rate</th>
+          <th>Sale Base Rate</th>
+          <th>Rate Diff</th>
+          <th>Loading</th>
+          <th>Insurance</th>
+          <th>Sale Gross</th>
+          <th>Purchase Gross</th>
+          <th>Profit Gross</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <input type="hidden" name="id" value="{{ r['id'] }}">
+          <input type="hidden" class="item-id" value="{{ r['item_id'] }}">
+          <td>{{ r["item_name"] }}</td>
+          <td>SO{{ r["so_id"] }}</td>
+          <td>PO{{ r["po_id"] }}</td>
+          <td>
+            <input name="section" class="form-control section" value="{{ r['section'] or '' }}">
+          </td>
+          <td>
+            <input name="qty" class="form-control qty text-end" value="{{ '%.3f'|format(r['qty'] or 0) }}">
+          </td>
+          <td>
+            <input name="buyer_rate" class="form-control buyer-rate text-end" value="{{ '%.2f'|format(r['purchase_rate'] or 0) }}">
+          </td>
+          <td>
+            <input name="base_rate" class="form-control base-rate text-end" value="{{ '%.2f'|format(r['sale_rate'] or 0) }}">
+          </td>
+          <td>
+            <input name="rate_diff" class="form-control rate-diff text-end" readonly>
+          </td>
+          <td>
+            <input name="loading_rate" class="form-control loading-rate text-end" value="345">
+          </td>
+          <td>
+            <input name="insurance_rate" class="form-control insurance-rate text-end" value="20">
+          </td>
+          <td>
+            <input name="amount" class="form-control amount text-end" readonly>
+          </td>
+          <td>
+            <input name="purchase_gross" class="form-control purchase-gross text-end" readonly>
+          </td>
+          <td>
+            <input name="profit_gross" class="form-control profit-gross text-end" readonly>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="table-secondary">
+          <th colspan="4" class="text-end">Total Qty</th>
+          <th class="text-end" id="totalQty">0.000</th>
+          <th colspan="4" class="text-end">Total Sale Gross</th>
+          <th colspan="4" class="text-end" id="totalAmount">0.00</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="mt-3 d-flex gap-2">
+    <button class="btn btn-success">Save Confirmation</button>
+    <a href="/loading_advice" class="btn btn-secondary">Back</a>
+  </div>
+</form>
+
+<script>
+function guessSectionExtra(section) {
+  if (!section) return 0;
+  var s = section.toString().trim();
+  if (!s) return 0;
+  if (s === "12" || s === "16" || s === "20" || s === "25") return 5000;
+  if (s.indexOf("10") !== -1) return 5500;
+  if (s === "8" || s === "32" || s.indexOf("8") !== -1 || s.indexOf("32") !== -1) return 6500;
+  return 0;
+}
+
+function recalcRow(tr) {
+  var qtyEl = tr.querySelector(".qty");
+  var buyerEl = tr.querySelector(".buyer-rate");
+  var baseEl = tr.querySelector(".base-rate");
+  var loadEl = tr.querySelector(".loading-rate");
+  var insEl = tr.querySelector(".insurance-rate");
+  var amtEl = tr.querySelector(".amount");
+  var diffEl = tr.querySelector(".rate-diff");
+  var purchaseEl = tr.querySelector(".purchase-gross");
+  var profitEl = tr.querySelector(".profit-gross");
+
+  var qty = parseFloat(qtyEl.value || "0");
+  if (isNaN(qty)) qty = 0;
+  var buyerRate = parseFloat(buyerEl.value || "0");
+  if (isNaN(buyerRate)) buyerRate = 0;
+  var baseRate = parseFloat(baseEl.value || "0");
+  if (isNaN(baseRate)) baseRate = 0;
+  var loadRate = parseFloat(loadEl.value || "0");
+  if (isNaN(loadRate)) loadRate = 0;
+  var insRate = parseFloat(insEl.value || "0");
+  if (isNaN(insRate)) insRate = 0;
+
+  var diff = baseRate - buyerRate;
+  diffEl.value = diff.toFixed(2);
+
+  var saleGross = qty * baseRate;
+  var purchaseGross = qty * buyerRate;
+  var profitGross = saleGross - purchaseGross - (qty * loadRate) - (qty * insRate);
+
+  amtEl.value = saleGross.toFixed(2);
+  purchaseEl.value = purchaseGross.toFixed(2);
+  profitEl.value = profitGross.toFixed(2);
+}
+
+function recalcAll() {
+  var totalQty = 0;
+  var totalAmt = 0;
+  document.querySelectorAll("#confirmTable tbody tr").forEach(function(tr) {
+    recalcRow(tr);
+    var qty = parseFloat(tr.querySelector(".qty").value || "0");
+    if (isNaN(qty)) qty = 0;
+    var amt = parseFloat(tr.querySelector(".amount").value || "0");
+    if (isNaN(amt)) amt = 0;
+    totalQty += qty;
+    totalAmt += amt;
+  });
+  document.getElementById("totalQty").textContent = totalQty.toFixed(3);
+  document.getElementById("totalAmount").textContent = totalAmt.toFixed(2);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  document.querySelectorAll("#confirmTable tbody tr").forEach(function(tr) {
+    ["input","change"].forEach(function(evt) {
+      tr.addEventListener(evt, function(e) {
+        if (e.target.matches(".qty, .buyer-rate, .base-rate, .section, .loading-rate, .insurance-rate")) {
+          recalcAll();
+        }
+      });
+    });
+  });
+  recalcAll();
+});
+</script>
+
+{% endblock %}

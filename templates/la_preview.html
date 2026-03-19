@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h3 class="mb-0">Loading Advice Preview</h3>
+  <a href="/dashboard" class="btn btn-outline-secondary">Close</a>
+</div>
+
+<div class="card p-3 mb-3">
+  <div><strong>LA#</strong> {{ h[0] }}</div>
+  <div><strong>Date</strong> {{ h[1] }}</div>
+  <div><strong>Vehicle</strong> {{ h[2] }}</div>
+  <div><strong>Status</strong> {{ h[3] or 'OPEN' }}</div>
+  {% if h[4] %}
+  <div><strong>Note</strong> {{ h[4] }}</div>
+  {% endif %}
+</div>
+
+<table class="table table-sm table-bordered">
+  <thead>
+    <tr>
+      <th>Section</th>
+      <th>Qty</th>
+      <th>Batch</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r[0] }}</td>
+      <td>{{ r[1] }}</td>
+      <td>{{ r[2] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if h[3] in [None, '', 'OPEN'] %}
+<form method="post" action="/la_preview/{{ h[0] }}/accept?token={{ request.args.get('token') }}" class="mt-3">
+  <div class="mb-2">
+    <label>Note (optional)</label>
+    <input name="note" class="form-control">
+  </div>
+  <button class="btn btn-success">Accept</button>
+</form>
+<form method="post" action="/la_preview/{{ h[0] }}/decline?token={{ request.args.get('token') }}" class="mt-2">
+  <div class="mb-2">
+    <label>Note (optional)</label>
+    <input name="note" class="form-control">
+  </div>
+  <button class="btn btn-danger">Decline</button>
+</form>
+{% else %}
+<div class="alert alert-info mt-3">This Loading Advice has been {{ h[3] }}.</div>
+{% endif %}
+
+{% endblock %}

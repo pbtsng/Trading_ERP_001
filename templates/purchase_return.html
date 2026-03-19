@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Purchase Return (against GRN #{{ head["grn_id"] }})</h3>
+
+<div class="mb-2">
+  <div><b>Date:</b> {{ head["grn_date"] }}</div>
+  <div><b>Supplier:</b> {{ head["supplier"] }}</div>
+</div>
+
+<form method="post">
+
+<div class="row g-2 mb-3">
+  <div class="col-12 col-md-3">
+    <label>Return Date</label>
+    <input type="date" name="pr_date" value="{{ today }}" class="form-control">
+  </div>
+  <div class="col-12 col-md-9">
+    <label>Reason</label>
+    <input name="reason" class="form-control">
+  </div>
+</div>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Section</th>
+      <th>GRN Qty</th>
+      <th>Return Qty</th>
+      <th>Rate</th>
+      <th>Amount</th>
+    </tr>
+  </thead>
+  <tbody id="rows">
+    {% for r in body %}
+    <tr>
+      <td>
+        <input name="item" value="{{ r[0] }}" class="form-control" readonly>
+      </td>
+      <td>
+        <input name="section" value="{{ r[1] }}" class="form-control" readonly>
+      </td>
+      <td>
+        <input value="{{ r[2] }}" class="form-control" readonly>
+      </td>
+      <td>
+        <input name="qty" value="{{ r[2] }}" class="form-control qty" oninput="calcRow(this)">
+      </td>
+      <td>
+        <input name="rate" value="{{ '%.2f'|format(r[3]) }}" class="form-control rate" oninput="calcRow(this)">
+      </td>
+      <td>
+        <input name="amount" class="form-control amount" readonly>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="row">
+  <div class="col-md-4">
+    <h4>
+      Return Total
+      <input id="return_total" name="return_total" class="form-control" readonly>
+    </h4>
+  </div>
+</div>
+
+<button class="btn btn-success">Save Purchase Return</button>
+
+</form>
+
+<hr>
+
+<h4>Saved Purchase Returns</h4>
+<div class="table-responsive">
+  <table class="table table-sm table-bordered">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Date</th>
+        <th>GRN#</th>
+        <th>Supplier</th>
+        <th>Total</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in returns %}
+      <tr>
+        <td>{{ r[0] }}</td>
+        <td>{{ r[1] }}</td>
+        <td>{{ r[2] }}</td>
+        <td>{{ r[3] }}</td>
+        <td>{{ '%.2f'|format(r[4] or 0) }}</td>
+        <td>{{ r[5] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+function calcRow(el){
+  const row = el.closest("tr");
+  let qty = parseFloat(row.querySelector(".qty").value || 0);
+  let rate = parseFloat(row.querySelector(".rate").value || 0);
+  if (isNaN(qty)) qty = 0;
+  if (isNaN(rate)) rate = 0;
+  const amt = qty * rate;
+  row.querySelector(".amount").value = amt.toFixed(2);
+  let total = 0;
+  document.querySelectorAll(".amount").forEach(a=>{
+    total += parseFloat(a.value || 0);
+  });
+  document.getElementById("return_total").value = total.toFixed(2);
+}
+
+window.addEventListener("load", function(){
+  document.querySelectorAll("#rows tr .qty").forEach(function(input){
+    calcRow(input);
+  });
+});
+</script>
+
+{% endblock %}
+

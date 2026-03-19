@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Order Balance Detail – {{ side|capitalize }} – {{ date }}</h3>
+
+<p class="text-muted">
+  Period: {{ from_date }} to {{ to_date }}
+</p>
+
+<div class="table-responsive">
+  <table class="table table-sm table-bordered table-striped">
+    <thead class="table-secondary">
+      <tr>
+        <th>State</th>
+        <th>Order No</th>
+        <th>Order Date</th>
+        <th>Party</th>
+        <th class="text-end">Order Qty</th>
+        <th class="text-end">Executed Qty</th>
+        <th class="text-end">Balance Qty</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.state }}</td>
+        <td>{{ r.order_no }}</td>
+        <td>{{ r.order_date }}</td>
+        <td>{{ r.party }}</td>
+        <td class="text-end">{{ '%.3f'|format(r.order_qty or 0) }}</td>
+        <td class="text-end">{{ '%.3f'|format(r.exec_qty or 0) }}</td>
+        <td class="text-end">{{ '%.3f'|format(r.balance_qty or 0) }}</td>
+        <td>{{ r.status }}</td>
+      </tr>
+      {% endfor %}
+      {% if not rows %}
+      <tr><td colspan="8" class="text-center text-muted">No records for this date.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<a href="/order_balance_sheet?from={{ from_date }}&to={{ to_date }}" class="btn btn-secondary mt-3">Back to Balance Sheet</a>
+
+{% endblock %}
+

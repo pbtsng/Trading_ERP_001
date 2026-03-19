@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h3>Purchase Order Preview</h3>
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h3 class="mb-0">Purchase Order Preview</h3>
+  <a href="/dashboard" class="btn btn-outline-secondary">Close</a>
+</div>
 
 <div class="card p-3 mb-3">
   <div><strong>PO#</strong> {{ r[0] }}</div>
